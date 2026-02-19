@@ -1,0 +1,94 @@
+quarkus:
+  http:
+    auth:
+      permission:
+        login:
+          paths: /api/auth/login
+          methods: POST
+          policy: permit
+        refresh:
+          paths: /api/auth/refresh
+          methods: POST
+          policy: permit
+        api-protected:
+          paths: /api/*
+          methods: GET,POST,PUT,DELETE,PATCH
+          policy: authenticated
+        swagger:
+          paths: /q/swagger-ui
+          methods: GET
+          policy: permit
+        openapi:
+          paths: /q/openapi
+          methods: GET
+          policy: permit
+        health:
+          paths: /health
+          methods: GET
+          policy: permit
+  native:
+    resources:
+      includes: publicKey.pem,privateKey.pem
+  datasource:
+    db-kind: postgresql
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:Passer@1}
+    devservices:
+      enabled: true
+    jdbc:
+      url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:noura_school_db}
+      max-size: 20
+      min-size: 5
+      initial-size: 5
+      acquisition-timeout: 5
+      idle-removal-interval: 5M
+      max-lifetime: 30M
+      validation-query-sql: SELECT 1
+  hibernate-orm:
+    schema-management:
+      strategy: validate
+    physical-naming-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
+  jpastreamer:
+    persistence-unit: default
+  flyway:
+    migrate-at-start: true
+
+mp:
+  jwt:
+    verify:
+      publickey:
+        location: classpath:publicKey.pem
+      issuer: ${JWT_ISSUER:https://noura-school.com}
+      audiences: ${JWT_AUDIENCE:noura-school-api}
+      clock:
+        skew: 60
+
+app:
+  jwt:
+    issuer: ${JWT_ISSUER:https://noura-school.com}
+    audience: ${JWT_AUDIENCE:noura-school-api}
+    access-token-lifespan: ${JWT_ACCESS_TOKEN_LIFESPAN:900}
+  security:
+    jwt-validation-enabled: true
+    clock-skew-seconds: 60
+  seed:
+    enabled: true
+    admin:
+      username: admin
+      password: Admin123!
+      email: admin@noura-school.com
+      first-name: Admin
+      last-name: System
+      telephone: "+221000000000"
+      adresse: Siège
+
+smallrye:
+  jwt:
+    sign:
+      key:
+        location: classpath:privateKey.pem
+        algorithm: RS256
+    new-token:
+      lifespan: ${JWT_ACCESS_TOKEN_LIFESPAN:900}
+      issuer: ${JWT_ISSUER:https://noura-school.com}
+      audience: ${JWT_AUDIENCE:noura-school-api}

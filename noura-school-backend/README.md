@@ -2,6 +2,39 @@
 
 This project uses Quarkus, the Supersonic Subatomic Java Framework.
 
+## Documentation API (Swagger)
+
+- **Swagger UI** : [http://localhost:8080/q/swagger-ui](http://localhost:8080/q/swagger-ui) (en dev)
+- **OpenAPI JSON** : [http://localhost:8080/q/openapi](http://localhost:8080/q/openapi)
+
+Authentification : utiliser **Authorize** dans Swagger UI et coller le JWT obtenu via `POST /api/auth/login`.
+
+## Postman – variables pour les tests
+
+Créer un environnement ou une collection avec les variables :
+
+| Variable | Valeur | Usage |
+|----------|--------|--------|
+| `base_url` | `http://localhost:8080` | URL de base |
+| `access_token` | *(vide, rempli après login)* | Header `Authorization: Bearer {{access_token}}` |
+| `refresh_token` | *(vide)* | Body de `/api/auth/refresh` |
+| `username` | `admin` (ou autre rôle) | Login |
+| `password` | mot de passe | Login |
+| `id` | `1` | GET/PUT/DELETE par ID |
+| `eleveId` | `1` | Endpoints parent par enfant |
+
+**Workflow :** exécuter `POST {{base_url}}/api/auth/login` avec `{"username":"{{username}}","password":"{{password}}"}` puis copier `accessToken` dans `access_token`. Pour enregistrer automatiquement le token, ajouter dans **Tests** de la requête Login :
+
+```js
+if (pm.response.code === 200) {
+  const j = pm.response.json();
+  if (j.accessToken) pm.collectionVariables.set('access_token', j.accessToken);
+  if (j.refreshToken) pm.collectionVariables.set('refresh_token', j.refreshToken);
+}
+```
+
+**Endpoints par rôle :** Admin `/api/admin/*`, Caissier `/api/caisse/*`, Enseignant `/api/enseignant/*`, Élève `/api/eleve/*`, Parent `/api/parent/*`.
+
 If you want to learn more about Quarkus, please visit its website: <https://quarkus.io/>.
 
 ## Running the application in dev mode
