@@ -34,6 +34,19 @@ public class BulletinRepositoryImpl implements BulletinRepository {
     }
 
     @Override
+    public List<BulletinEntity> findByClasseIdAndAnneeAndTrimestre(UUID classeId, String anneeScolaire, String trimestre) {
+        return BulletinEntity.list(
+                "eleve.classe.id = ?1 and anneeScolaire = ?2 and trimestre = ?3",
+                classeId, anneeScolaire, trimestre
+        );
+    }
+
+    @Override
+    public List<BulletinEntity> findAllByAnneeAndTrimestre(String anneeScolaire, String trimestre) {
+        return BulletinEntity.list("anneeScolaire = ?1 and trimestre = ?2", anneeScolaire, trimestre);
+    }
+
+    @Override
     public long count() {
         return BulletinEntity.count();
     }

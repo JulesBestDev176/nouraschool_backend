@@ -20,6 +20,11 @@ public class EleveRepositoryImpl implements EleveRepository {
     }
 
     @Override
+    public List<EleveEntity> findByClasseId(UUID classeId) {
+        return EleveEntity.list("classe.id", classeId);
+    }
+
+    @Override
     public List<EleveEntity> findAll(PageRequest pageRequest) {
         var page = Page.of(pageRequest.getPage(), pageRequest.getSize());
         var sortBy = pageRequest.getSortBy() != null && ALLOWED_SORT.contains(pageRequest.getSortBy())

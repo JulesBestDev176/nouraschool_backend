@@ -7,9 +7,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Use case Caissier : gestion caisse, suivi/validation paiements, rapports.
- */
 public interface CaisseUseCase {
 
     List<PaiementDto> listerPaiements();

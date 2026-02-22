@@ -1,17 +1,13 @@
 package com.nouraschool.domain.entities;
 
 import jakarta.persistence.*;
+
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
 @Table(name = "absences_enseignants")
-public class AbsenceEnseignantEntity extends AbstractUuidEntity {
-
-    @ManyToOne
-    @JoinColumn(name = "enseignant_id", nullable = false)
-    public EnseignantEntity enseignantEntity;
+public class AbsenceEnseignantEntity extends AbstractEntity {
 
     @Column(name = "date_debut", nullable = false)
     public LocalDate dateDebut;
@@ -34,12 +30,9 @@ public class AbsenceEnseignantEntity extends AbstractUuidEntity {
     @Column(name = "notification_envoyee")
     public Boolean notificationEnvoyee = false;
 
-    @Column(name = "created_at")
-    public LocalDateTime createdAt;
+    @ManyToOne
+    @JoinColumn(name = "enseignant_id", nullable = false)
+    public EnseignantEntity enseignantEntity;
 
-    @PrePersist
-    public void prePersist() {
-        createdAt = LocalDateTime.now();
-    }
 }
 

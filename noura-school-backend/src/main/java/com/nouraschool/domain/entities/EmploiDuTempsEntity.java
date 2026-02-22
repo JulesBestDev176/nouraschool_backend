@@ -8,7 +8,7 @@ import java.time.LocalTime;
 
 @Entity
 @Table(name = "emplois_du_temps")
-public class EmploiDuTempsEntity extends AbstractUuidEntity {
+public class EmploiDuTempsEntity extends AbstractEntity {
 
     @ManyToOne
     @JoinColumn(name = "classe_id", nullable = false)

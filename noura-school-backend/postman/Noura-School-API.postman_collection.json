@@ -20,10 +20,11 @@
     { "key": "access_token", "value": "" },
     { "key": "refresh_token", "value": "" },
     { "key": "username", "value": "admin" },
-    { "key": "password", "value": "admin" },
-    { "key": "id", "value": "1" },
-    { "key": "eleveId", "value": "1" },
-    { "key": "noteId", "value": "1" },
+    { "key": "password", "value": "Admin123!" },
+    { "key": "id", "value": "" },
+    { "key": "eleveId", "value": "" },
+    { "key": "classeId", "value": "" },
+    { "key": "noteId", "value": "" },
     { "key": "statut", "value": "EN_ATTENTE" }
   ],
   "item": [
@@ -205,12 +206,20 @@
       "item": [
         { "name": "Liste bulletins", "request": { "method": "GET", "url": "{{base_url}}/api/admin/bulletins?page=0&size=20&sortBy=id&asc=true" } },
         { "name": "Bulletin par ID", "request": { "method": "GET", "url": "{{base_url}}/api/admin/bulletins/{{id}}" } },
-        { "name": "Télécharger bulletin (PDF)", "request": { "method": "GET", "url": "{{base_url}}/api/admin/bulletins/{{id}}/download?format=pdf" } },
-        { "name": "Télécharger bulletin (Word)", "request": { "method": "GET", "url": "{{base_url}}/api/admin/bulletins/{{id}}/download?format=word" } },
-        { "name": "Télécharger bulletin (Excel)", "request": { "method": "GET", "url": "{{base_url}}/api/admin/bulletins/{{id}}/download?format=excel" } },
-        { "name": "Créer bulletin", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"eleveId\": 1,\n    \"periode\": \"Trimestre 1\",\n    \"anneeScolaire\": \"2024-2025\"\n}" }, "url": "{{base_url}}/api/admin/bulletins" } },
-        { "name": "Modifier bulletin", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"eleveId\": 1,\n    \"periode\": \"Trimestre 1\",\n    \"anneeScolaire\": \"2024-2025\"\n}" }, "url": "{{base_url}}/api/admin/bulletins/{{id}}" } },
+        { "name": "Télécharger un bulletin (PDF)", "request": { "method": "GET", "url": "{{base_url}}/api/admin/bulletins/{{id}}/download?format=pdf" } },
+        { "name": "Télécharger un bulletin (Word)", "request": { "method": "GET", "url": "{{base_url}}/api/admin/bulletins/{{id}}/download?format=word" } },
+        { "name": "Télécharger un bulletin (Excel)", "request": { "method": "GET", "url": "{{base_url}}/api/admin/bulletins/{{id}}/download?format=excel" } },
+        { "name": "Télécharger bulletins par classe (ZIP)", "request": { "method": "GET", "url": "{{base_url}}/api/admin/bulletins/download/by-classe?classeId={{classeId}}&anneeScolaire=2024-2025&trimestre=Trimestre 1" } },
+        { "name": "Télécharger tous les bulletins école (ZIP)", "request": { "method": "GET", "url": "{{base_url}}/api/admin/bulletins/download/all?anneeScolaire=2024-2025&trimestre=Trimestre 1" } },
+        { "name": "Créer bulletin", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"eleveId\": \"{{eleveId}}\",\n    \"trimestre\": \"Trimestre 1\",\n    \"anneeScolaire\": \"2024-2025\",\n    \"moyenne\": 12.5,\n    \"moyenneClasse\": 11.2,\n    \"rang\": 3,\n    \"totalEleves\": 25,\n    \"appreciation\": \"Bon trimestre.\",\n    \"nombreAbsences\": 0,\n    \"nombreRetards\": 1\n}" }, "url": "{{base_url}}/api/admin/bulletins" } },
+        { "name": "Modifier bulletin", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"eleveId\": \"{{eleveId}}\",\n    \"trimestre\": \"Trimestre 1\",\n    \"anneeScolaire\": \"2024-2025\",\n    \"moyenne\": 13.0,\n    \"moyenneClasse\": 11.2,\n    \"rang\": 2,\n    \"totalEleves\": 25,\n    \"appreciation\": \"Très bon trimestre.\",\n    \"nombreAbsences\": 0,\n    \"nombreRetards\": 0\n}" }, "url": "{{base_url}}/api/admin/bulletins/{{id}}" } },
         { "name": "Supprimer bulletin", "request": { "method": "DELETE", "url": "{{base_url}}/api/admin/bulletins/{{id}}" } }
+      ]
+    },
+    {
+      "name": "Admin - Rapports",
+      "item": [
+        { "name": "Rapport trimestre (PDF)", "request": { "method": "GET", "url": "{{base_url}}/api/admin/reports/rapport-trimestre?anneeScolaire=2024-2025&trimestre=Trimestre 1" } }
       ]
     },
     {

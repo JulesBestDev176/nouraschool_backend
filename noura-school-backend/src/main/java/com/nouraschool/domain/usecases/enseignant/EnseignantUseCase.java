@@ -5,9 +5,6 @@ import com.nouraschool.domain.dtos.*;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Use case Enseignant : classes/matières, notes, bulletins, absences, réclamations.
- */
 public interface EnseignantUseCase {
 
     EnseignantDto monProfil(UUID enseignantId);

@@ -6,7 +6,7 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "calendrier_scolaire")
-public class CalendrierScolaireEntity extends AbstractUuidEntity {
+public class CalendrierScolaireEntity extends AbstractEntity {
 
     @Column(name = "annee_scolaire", nullable = false)
     public String anneeScolaire;

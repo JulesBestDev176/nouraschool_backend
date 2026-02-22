@@ -71,16 +71,6 @@ app:
   security:
     jwt-validation-enabled: true
     clock-skew-seconds: 60
-  seed:
-    enabled: true
-    admin:
-      username: admin
-      password: Admin123!
-      email: admin@noura-school.com
-      first-name: Admin
-      last-name: System
-      telephone: "+221000000000"
-      adresse: Siège
 
 smallrye:
   jwt:

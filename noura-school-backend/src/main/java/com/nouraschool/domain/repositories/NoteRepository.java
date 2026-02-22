@@ -11,6 +11,8 @@ public interface NoteRepository {
 
     List<NoteEntity> findByEleveId(UUID eleveId);
 
+    List<NoteEntity> findByEleveIdAndTrimestreAndAnnee(UUID eleveId, String trimestre, String anneeScolaire);
+
     NoteEntity findById(UUID id);
 
     NoteEntity persist(NoteEntity entity);

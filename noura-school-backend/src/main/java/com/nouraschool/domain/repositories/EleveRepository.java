@@ -10,6 +10,8 @@ public interface EleveRepository {
 
     List<EleveEntity> findAll();
 
+    List<EleveEntity> findByClasseId(UUID classeId);
+
     List<EleveEntity> findAll(PageRequest pageRequest);
 
     long count();

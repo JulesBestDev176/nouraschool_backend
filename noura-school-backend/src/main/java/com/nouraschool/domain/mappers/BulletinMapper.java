@@ -15,8 +15,8 @@ public class BulletinMapper {
     @Inject
     public BulletinMapper(ModelMapperConfig config) {
         this.modelMapper = config.getModelMapper();
-        TypeMap<BulletinEntity, BulletinDto> map = modelMapper.createTypeMap(BulletinEntity.class, BulletinDto.class);
-        map.addMappings(m -> m.map(src -> src.eleve != null ? src.eleve.id : null, BulletinDto::setEleveId));
+        TypeMap<BulletinEntity, BulletinDto> toDtoMap = modelMapper.createTypeMap(BulletinEntity.class, BulletinDto.class);
+        toDtoMap.addMappings(m -> m.map(src -> src.eleve != null ? src.eleve.id : null, BulletinDto::setEleveId));
     }
 
     public BulletinDto toDto(BulletinEntity entity) {

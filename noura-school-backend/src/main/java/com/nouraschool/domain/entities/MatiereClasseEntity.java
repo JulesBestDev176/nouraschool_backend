@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "matiere_classe")
-public class MatiereClasseEntity extends AbstractUuidEntity {
+public class MatiereClasseEntity extends AbstractEntity {
 
     @ManyToOne
     @JoinColumn(name = "matiere_id", nullable = false)

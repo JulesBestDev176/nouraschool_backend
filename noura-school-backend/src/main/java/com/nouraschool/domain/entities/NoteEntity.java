@@ -2,20 +2,12 @@ package com.nouraschool.domain.entities;
 
 import com.nouraschool.domain.enums.TypeEvaluation;
 import jakarta.persistence.*;
+
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "notes")
-public class NoteEntity extends AbstractUuidEntity {
-
-    @ManyToOne
-    @JoinColumn(name = "eleve_id", nullable = false)
-    public EleveEntity eleve;
-
-    @ManyToOne
-    @JoinColumn(name = "matiere_id", nullable = false)
-    public MatiereEntity matiere;
+public class NoteEntity extends AbstractEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -39,20 +31,12 @@ public class NoteEntity extends AbstractUuidEntity {
     @Column(columnDefinition = "TEXT")
     public String commentaire;
 
-    @Column(name = "created_at")
-    public LocalDateTime createdAt;
+    @ManyToOne
+    @JoinColumn(name = "eleve_id", nullable = false)
+    public EleveEntity eleve;
 
-    @Column(name = "updated_at")
-    public LocalDateTime updatedAt;
+    @ManyToOne
+    @JoinColumn(name = "matiere_id", nullable = false)
+    public MatiereEntity matiere;
 
-    @PrePersist
-    public void prePersist() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    public void preUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
 }

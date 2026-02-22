@@ -9,7 +9,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "refresh_tokens")
-public class RefreshTokenEntity extends AbstractUuidEntity {
+public class RefreshTokenEntity extends AbstractEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -23,9 +23,6 @@ public class RefreshTokenEntity extends AbstractUuidEntity {
 
     @Column(nullable = false)
     public Boolean revoked = false;
-
-    @Column(name = "created_at", nullable = false)
-    public LocalDateTime createdAt;
 
     public static RefreshTokenEntity findByTokenHash(String tokenHash) {
         return find("tokenHash", tokenHash).firstResult();

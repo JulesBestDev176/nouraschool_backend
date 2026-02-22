@@ -136,11 +136,21 @@
             <artifactId>modelmapper</artifactId>
             <version>3.2.1</version>
         </dependency>
-        <!-- PDF generation -->
+        <!-- PDF generation (iText 7: kernel + io + layout) -->
         <dependency>
-            <groupId>com.github.librepdf</groupId>
-            <artifactId>openpdf</artifactId>
-            <version>1.3.35</version>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>kernel</artifactId>
+            <version>7.2.5</version>
+        </dependency>
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>io</artifactId>
+            <version>7.2.5</version>
+        </dependency>
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>layout</artifactId>
+            <version>7.2.5</version>
         </dependency>
         <!-- Excel/Word generation -->
         <dependency>
@@ -163,6 +173,11 @@
                 <version>${compiler-plugin.version}</version>
                 <configuration>
                     <parameters>true</parameters>
+                    <source>21</source>
+                    <target>21</target>
+                    <compilerArgs>
+                        <arg>-Xlint:-processing</arg>
+                    </compilerArgs>
                 </configuration>
             </plugin>
             <plugin>

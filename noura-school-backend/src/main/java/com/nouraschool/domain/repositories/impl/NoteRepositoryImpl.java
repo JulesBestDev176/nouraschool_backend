@@ -21,6 +21,12 @@ public class NoteRepositoryImpl implements NoteRepository {
     }
 
     @Override
+    public List<NoteEntity> findByEleveIdAndTrimestreAndAnnee(UUID eleveId, String trimestre, String anneeScolaire) {
+        return NoteEntity.list("eleve.id = ?1 and trimestre = ?2 and anneeScolaire = ?3",
+                eleveId, trimestre, anneeScolaire);
+    }
+
+    @Override
     public NoteEntity findById(UUID id) {
         return NoteEntity.findById(id);
     }

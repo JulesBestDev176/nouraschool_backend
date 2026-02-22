@@ -9,7 +9,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "classes")
-public class ClasseEntity extends AbstractUuidEntity {
+public class ClasseEntity extends AbstractEntity {
 
     @Column(nullable = false, unique = true)
     public String nom;

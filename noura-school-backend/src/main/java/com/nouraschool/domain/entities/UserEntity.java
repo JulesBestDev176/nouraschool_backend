@@ -6,13 +6,12 @@ import io.quarkus.security.jpa.Roles;
 import io.quarkus.security.jpa.UserDefinition;
 import io.quarkus.security.jpa.Username;
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")
 @Inheritance(strategy = InheritanceType.JOINED)
 @UserDefinition
-public class UserEntity extends AbstractUuidEntity {
+public class UserEntity extends AbstractEntity {
 
     @Column(nullable = false, unique = true)
     @Username
@@ -48,21 +47,4 @@ public class UserEntity extends AbstractUuidEntity {
 
     @Column(nullable = false)
     public Boolean active = true;
-
-    @Column(name = "created_at")
-    public LocalDateTime createdAt;
-
-    @Column(name = "updated_at")
-    public LocalDateTime updatedAt;
-
-    @PrePersist
-    public void prePersist() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    public void preUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
 }

@@ -2,12 +2,13 @@ package com.nouraschool.domain.entities;
 
 import com.nouraschool.domain.enums.TypeNotification;
 import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
 @Table(name = "notifications")
-public class NotificationEntity extends AbstractUuidEntity {
+public class NotificationEntity extends AbstractEntity {
 
     @Column(name = "user_id", nullable = false)
     public UUID userId;
@@ -31,11 +32,4 @@ public class NotificationEntity extends AbstractUuidEntity {
     @Column(name = "reference_type")
     public String referenceType;
 
-    @Column(name = "created_at")
-    public LocalDateTime createdAt;
-
-    @PrePersist
-    public void prePersist() {
-        createdAt = LocalDateTime.now();
-    }
 }

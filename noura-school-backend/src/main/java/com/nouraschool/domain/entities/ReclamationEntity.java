@@ -8,11 +8,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "reclamations")
-public class ReclamationEntity extends AbstractUuidEntity {
-
-    @ManyToOne
-    @JoinColumn(name = "eleve_id", nullable = false)
-    public EleveEntity eleve;
+public class ReclamationEntity extends AbstractEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -45,20 +41,8 @@ public class ReclamationEntity extends AbstractUuidEntity {
     @Column(name = "date_traitement")
     public LocalDateTime dateTraitement;
 
-    @Column(name = "created_at")
-    public LocalDateTime createdAt;
+    @ManyToOne
+    @JoinColumn(name = "eleve_id", nullable = false)
+    public EleveEntity eleve;
 
-    @Column(name = "updated_at")
-    public LocalDateTime updatedAt;
-
-    @PrePersist
-    public void prePersist() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    public void preUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
 }

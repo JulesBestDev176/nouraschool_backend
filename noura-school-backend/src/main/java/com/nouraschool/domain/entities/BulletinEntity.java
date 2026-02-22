@@ -1,11 +1,10 @@
 package com.nouraschool.domain.entities;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "bulletins")
-public class BulletinEntity extends AbstractUuidEntity {
+public class BulletinEntity extends AbstractEntity {
 
     @ManyToOne
     @JoinColumn(name = "eleve_id", nullable = false)
@@ -38,14 +37,7 @@ public class BulletinEntity extends AbstractUuidEntity {
     @Column(name = "nombre_retards")
     public Integer nombreRetards = 0;
 
-    @Column(name = "created_at")
-    public LocalDateTime createdAt;
-
     @Column(name = "fichier_pdf_url")
     public String fichierPdfUrl;
 
-    @PrePersist
-    public void prePersist() {
-        createdAt = LocalDateTime.now();
-    }
 }

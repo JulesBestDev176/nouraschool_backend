@@ -5,9 +5,6 @@ import com.nouraschool.domain.dtos.*;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Use case Élève : profil, notes, bulletins, EDT, absences, réclamations, notifications.
- */
 public interface EleveUseCase {
 
     EleveDto monProfil(UUID eleveId);

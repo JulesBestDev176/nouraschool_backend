@@ -9,7 +9,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "paiements")
-public class PaiementEntity extends AbstractUuidEntity {
+public class PaiementEntity extends AbstractEntity {
 
     @ManyToOne
     @JoinColumn(name = "eleve_id", nullable = false)
@@ -55,11 +55,4 @@ public class PaiementEntity extends AbstractUuidEntity {
     @Column(name = "valide_par")
     public UUID validePar;
 
-    @Column(name = "created_at")
-    public LocalDateTime createdAt;
-
-    @PrePersist
-    public void prePersist() {
-        createdAt = LocalDateTime.now();
-    }
 }

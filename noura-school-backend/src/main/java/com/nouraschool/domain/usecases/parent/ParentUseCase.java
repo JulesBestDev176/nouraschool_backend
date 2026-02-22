@@ -5,9 +5,6 @@ import com.nouraschool.domain.dtos.*;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Use case Parent : profil enfant, notes, bulletins, absences, EDT, paiements, notifications.
- */
 public interface ParentUseCase {
 
     ParentDto monProfil(UUID parentId);
