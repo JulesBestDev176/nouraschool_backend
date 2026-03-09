@@ -8,6 +8,7 @@ import com.nouraschool.domain.exception.errors.InvalidRequestException;
 import com.nouraschool.domain.exception.errors.NotFoundException;
 import com.nouraschool.domain.mappers.ParentMapper;
 import com.nouraschool.domain.repositories.ParentRepository;
+import com.nouraschool.domain.repositories.TenantRepository;
 import com.nouraschool.domain.repositories.UserRepository;
 import com.nouraschool.domain.services.PasswordEncoder;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -25,6 +26,8 @@ public class AdminParentUseCaseImpl implements AdminParentUseCase {
     ParentRepository parentRepository;
     @Inject
     UserRepository userRepository;
+    @Inject
+    TenantRepository tenantRepository;
     @Inject
     ParentMapper parentMapper;
     @Inject
@@ -45,9 +48,10 @@ public class AdminParentUseCaseImpl implements AdminParentUseCase {
     @Override
     @Transactional
     public ParentDto create(ParentCreateDto dto) {
-        if (userRepository.findByUsername(dto.getUsername()) != null) throw new InvalidRequestException("USERNAME_EXISTS");
-        if (userRepository.findByUsernameOrEmail(dto.getEmail()) != null) throw new InvalidRequestException("EMAIL_EXISTS");
+        if (userRepository.findByUsername(dto.getUsername()) != null) throw new InvalidRequestException("EMAIL_DEJA_UTILISE");
+        if (userRepository.findByUsernameOrEmail(dto.getEmail()) != null) throw new InvalidRequestException("EMAIL_DEJA_UTILISE");
         ParentEntity entity = new ParentEntity();
+        entity.tenant = tenantRepository.findDefault();
         entity.username = dto.getUsername();
         entity.email = dto.getEmail();
         entity.password = passwordEncoder.encode(dto.getPassword());
@@ -56,6 +60,7 @@ public class AdminParentUseCaseImpl implements AdminParentUseCase {
         entity.telephone = dto.getTelephone();
         entity.adresse = dto.getAdresse();
         entity.role = UserRole.PARENT;
+        entity.mustChangePassword = true;
         entity.profession = dto.getProfession();
         entity.lieuTravail = dto.getLieuTravail();
         entity.telephoneTravail = dto.getTelephoneTravail();

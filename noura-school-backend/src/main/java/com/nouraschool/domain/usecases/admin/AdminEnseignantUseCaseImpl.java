@@ -8,6 +8,7 @@ import com.nouraschool.domain.exception.errors.InvalidRequestException;
 import com.nouraschool.domain.exception.errors.NotFoundException;
 import com.nouraschool.domain.mappers.EnseignantMapper;
 import com.nouraschool.domain.repositories.EnseignantRepository;
+import com.nouraschool.domain.repositories.TenantRepository;
 import com.nouraschool.domain.repositories.UserRepository;
 import com.nouraschool.domain.services.PasswordEncoder;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -25,6 +26,8 @@ public class AdminEnseignantUseCaseImpl implements AdminEnseignantUseCase {
     EnseignantRepository enseignantRepository;
     @Inject
     UserRepository userRepository;
+    @Inject
+    TenantRepository tenantRepository;
     @Inject
     EnseignantMapper enseignantMapper;
     @Inject
@@ -50,12 +53,13 @@ public class AdminEnseignantUseCaseImpl implements AdminEnseignantUseCase {
     @Transactional
     public EnseignantDto create(EnseignantCreateDto dto) {
         if (userRepository.findByUsername(dto.getUsername()) != null) {
-            throw new InvalidRequestException("USERNAME_EXISTS");
+            throw new InvalidRequestException("EMAIL_DEJA_UTILISE");
         }
         if (userRepository.findByUsernameOrEmail(dto.getEmail()) != null) {
-            throw new InvalidRequestException("EMAIL_EXISTS");
+            throw new InvalidRequestException("EMAIL_DEJA_UTILISE");
         }
         EnseignantEntity entity = new EnseignantEntity();
+        entity.tenant = tenantRepository.findDefault();
         entity.username = dto.getUsername();
         entity.email = dto.getEmail();
         entity.password = passwordEncoder.encode(dto.getPassword());
@@ -64,6 +68,7 @@ public class AdminEnseignantUseCaseImpl implements AdminEnseignantUseCase {
         entity.telephone = dto.getTelephone();
         entity.adresse = dto.getAdresse();
         entity.role = UserRole.ENSEIGNANT;
+        entity.mustChangePassword = true;
         entity.matricule = dto.getMatricule();
         entity.specialite = dto.getSpecialite();
         entity.dateEmbauche = dto.getDateEmbauche();

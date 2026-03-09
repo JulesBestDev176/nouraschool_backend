@@ -14,6 +14,8 @@ public interface BulletinRepository {
 
     List<BulletinEntity> findByEleveId(UUID eleveId);
 
+    List<BulletinEntity> findByEleveIdAndStatut(UUID eleveId, String statut);
+
     List<BulletinEntity> findByClasseIdAndAnneeAndTrimestre(UUID classeId, String anneeScolaire, String trimestre);
 
     List<BulletinEntity> findAllByAnneeAndTrimestre(String anneeScolaire, String trimestre);

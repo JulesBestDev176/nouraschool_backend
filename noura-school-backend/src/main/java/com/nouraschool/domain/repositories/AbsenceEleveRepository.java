@@ -17,3 +17,4 @@ public interface AbsenceEleveRepository {
 
     void delete(AbsenceEleveEntity entity);
 }
+

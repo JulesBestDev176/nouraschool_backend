@@ -2,9 +2,14 @@ package com.nouraschool.domain.entities;
 
 import jakarta.persistence.*;
 
+import java.util.UUID;
+
 @Entity
 @Table(name = "matiere_classe")
 public class MatiereClasseEntity extends AbstractEntity {
+
+    @Column(name = "tenant_id", nullable = false)
+    public UUID tenantId;
 
     @ManyToOne
     @JoinColumn(name = "matiere_id", nullable = false)

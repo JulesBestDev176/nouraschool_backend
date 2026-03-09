@@ -3,8 +3,8 @@ package com.nouraschool.runtime.controller;
 import com.nouraschool.domain.dtos.EleveCreateDto;
 import com.nouraschool.domain.dtos.EleveDto;
 import com.nouraschool.domain.dtos.EleveUpdateDto;
-import com.nouraschool.domain.dtos.PageRequest;
 import com.nouraschool.domain.usecases.admin.AdminEleveUseCase;
+import com.nouraschool.domain.utils.PageUtils;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Path("/api/admin/eleves")
-@RolesAllowed("ADMIN")
+@RolesAllowed({"ADMIN", "CAISSIER"})
 @SecurityRequirement(name = "Bearer")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
@@ -32,8 +32,7 @@ public class AdminEleveResource {
                          @QueryParam("sortBy") String sortBy,
                          @QueryParam("asc") @DefaultValue("true") boolean asc) {
         if (page >= 0) {
-            var pr = PageRequest.builder().page(page).size(size).sortBy(sortBy).ascending(asc).build();
-            return adminEleveUseCase.findAll(pr);
+            return adminEleveUseCase.findAll(PageUtils.of(page, size, sortBy, asc));
         }
         return adminEleveUseCase.findAll();
     }

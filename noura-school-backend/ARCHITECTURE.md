@@ -12,7 +12,7 @@ com.nouraschool
 │   ├── exception             # Exceptions et gestion
 │   │   ├── codes             # ErrorDto, BackendError
 │   │   ├── errors            # InvalidRequestException, ServiceException, NotFoundException
-│   │   └── impl              # CsvBackendErrorResolver
+│   │   └── (résolution codes : ConfigBackendErrorResolver dans runtime/config)
 │   ├── mappers               # Un mapper par entité (UserMapper, ClasseMapper, etc.)
 │   ├── repositories          # Interfaces repository
 │   │   └── impl              # Implémentations

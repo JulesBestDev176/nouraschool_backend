@@ -16,4 +16,8 @@ public interface AdminAbsenceEleveUseCase {
     AbsenceEleveDto update(UUID id, AbsenceEleveDto dto);
 
     void delete(UUID id);
+
+    AbsenceEleveDto approuver(UUID id, UUID approuvePar);
+
+    AbsenceEleveDto rejeter(UUID id, UUID approuvePar);
 }

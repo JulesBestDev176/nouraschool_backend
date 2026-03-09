@@ -1,0 +1,23 @@
+# Profil test — @QuarkusTest, mvn test
+quarkus:
+  devservices:
+    enabled: true
+  datasource:
+    devservices:
+      enabled: true
+  log:
+    level: WARN
+    category:
+      "com.nouraschool":
+        level: INFO
+  swagger-ui:
+    always-include: false
+  hibernate-orm:
+    schema-management:
+      strategy: validate
+
+# Désactiver Elastic en test (éviter appels réseau)
+app:
+  logging:
+    elastic:
+      enabled: false

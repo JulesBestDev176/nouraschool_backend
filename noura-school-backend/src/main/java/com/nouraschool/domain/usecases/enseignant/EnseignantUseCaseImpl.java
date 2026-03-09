@@ -2,6 +2,7 @@ package com.nouraschool.domain.usecases.enseignant;
 
 import com.nouraschool.domain.dtos.*;
 import com.nouraschool.domain.entities.*;
+import com.nouraschool.domain.enums.TypeAbsence;
 import com.nouraschool.domain.exception.errors.NotFoundException;
 import com.nouraschool.domain.mappers.*;
 import com.nouraschool.domain.repositories.*;
@@ -25,6 +26,12 @@ public class EnseignantUseCaseImpl implements EnseignantUseCase {
     @Inject ReclamationRepository reclamationRepository;
     @Inject EleveRepository eleveRepository;
     @Inject MatiereRepository matiereRepository;
+    @Inject AppelRepository appelRepository;
+    @Inject AppelLigneRepository appelLigneRepository;
+    @Inject CahierTexteRepository cahierTexteRepository;
+    @Inject AbsenceEleveRepository absenceEleveRepository;
+    @Inject CoursRepository coursRepository;
+    @Inject com.nouraschool.runtime.tenant.TenantContext tenantContext;
 
     @Inject EnseignantMapper enseignantMapper;
     @Inject MatiereClasseMapper matiereClasseMapper;
@@ -33,6 +40,8 @@ public class EnseignantUseCaseImpl implements EnseignantUseCase {
     @Inject BulletinMapper bulletinMapper;
     @Inject AbsenceEnseignantMapper absenceEnseignantMapper;
     @Inject ReclamationMapper reclamationMapper;
+    @Inject AppelMapper appelMapper;
+    @Inject CahierTexteMapper cahierTexteMapper;
 
     @Override
     public EnseignantDto monProfil(UUID enseignantId) {
@@ -113,5 +122,133 @@ public class EnseignantUseCaseImpl implements EnseignantUseCase {
         if (matiereIds.isEmpty()) return List.of();
         return reclamationRepository.findByNoteMatiereIdIn(matiereIds).stream()
                 .map(reclamationMapper::toDto).collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public AppelDto creerAppel(UUID enseignantId, AppelDto dto) {
+        var cours = coursRepository.findById(dto.getCoursId());
+        if (cours == null) throw new NotFoundException("Cours non trouvé");
+        if (!enseignantId.equals(cours.professeurId))
+            throw new NotFoundException("Ce cours n'est pas assigné à cet enseignant");
+        var tenantId = tenantContext.getTenantId();
+        if (tenantId == null) throw new NotFoundException("Tenant non défini");
+
+        var entity = new AppelEntity();
+        entity.tenantId = tenantId;
+        entity.coursId = dto.getCoursId();
+        entity.dateCours = dto.getDateCours();
+        entity.heureDebut = dto.getHeureDebut();
+        entity.statut = "BROUILLON";
+        entity.soumisPar = enseignantId;
+
+        appelRepository.persist(entity);
+
+        if (dto.getLignes() != null) {
+            for (var ligneDto : dto.getLignes()) {
+                var ligne = appelMapper.toLigneEntity(ligneDto, entity.id);
+                if (ligne != null) {
+                    ligne.appel = entity;
+                    appelLigneRepository.persist(ligne);
+                }
+            }
+        }
+        entity = appelRepository.findById(entity.id);
+        return appelMapper.toDto(entity);
+    }
+
+    @Override
+    public List<AppelDto> listeAppels(UUID enseignantId, UUID coursId) {
+        var coursIds = coursRepository.findByProfesseurId(enseignantId).stream()
+                .map(c -> c.id).toList();
+        if (coursId != null && !coursIds.contains(coursId)) return List.of();
+        var ids = coursId != null ? List.of(coursId) : coursIds;
+        if (ids.isEmpty()) return List.of();
+        return ids.stream()
+                .flatMap(id -> appelRepository.findByCoursId(id).stream())
+                .map(appelMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public AppelDto soumettreAppel(UUID enseignantId, UUID appelId) {
+        var entity = appelRepository.findById(appelId);
+        if (entity == null) throw new NotFoundException("Appel non trouvé");
+        if (!enseignantId.equals(entity.soumisPar))
+            throw new NotFoundException("Cet appel n'appartient pas à cet enseignant");
+        if (!"BROUILLON".equals(entity.statut))
+            throw new NotFoundException("L'appel est déjà soumis");
+
+        entity.statut = "EN_ATTENTE";
+        appelRepository.persist(entity);
+
+        var lignes = appelLigneRepository.findByAppelId(appelId);
+        for (var ligne : lignes) {
+            if ("ABSENT".equals(ligne.statut)) {
+                var abs = new AbsenceEleveEntity();
+                abs.date = entity.dateCours;
+                abs.typeAbsence = TypeAbsence.COURS_SPECIFIQUE;
+                abs.justifiee = false;
+                abs.declaredBy = entity.soumisPar;
+                abs.statut = "EN_ATTENTE";
+                abs.eleve = eleveRepository.findById(ligne.eleveId);
+                if (abs.eleve != null) absenceEleveRepository.persist(abs);
+            }
+        }
+        entity = appelRepository.findById(appelId);
+        return appelMapper.toDto(entity);
+    }
+
+    @Override
+    @Transactional
+    public CahierTexteDto creerCahierTexte(UUID enseignantId, CahierTexteDto dto) {
+        var cours = coursRepository.findById(dto.getCoursId());
+        if (cours == null) throw new NotFoundException("Cours non trouvé");
+        if (!enseignantId.equals(cours.professeurId))
+            throw new NotFoundException("Ce cours n'est pas assigné à cet enseignant");
+        var tenantId = tenantContext.getTenantId();
+        if (tenantId == null) throw new NotFoundException("Tenant non défini");
+
+        var entity = cahierTexteMapper.toEntity(dto);
+        entity.tenantId = tenantId;
+        entity.coursId = dto.getCoursId();
+        entity.dateCours = dto.getDateCours();
+        entity.contenuTraite = dto.getContenuTraite();
+        entity.observations = dto.getObservations();
+        entity.etapeProgramme = dto.getEtapeProgramme();
+        entity.programmeValide = dto.getProgrammeValide() != null ? dto.getProgrammeValide() : false;
+
+        return cahierTexteMapper.toDto(cahierTexteRepository.persist(entity));
+    }
+
+    @Override
+    public List<CahierTexteDto> listeCahierTexte(UUID enseignantId, UUID coursId) {
+        var coursIds = coursRepository.findByProfesseurId(enseignantId).stream()
+                .map(c -> c.id).toList();
+        if (coursId != null && !coursIds.contains(coursId)) return List.of();
+        var ids = coursId != null ? List.of(coursId) : coursIds;
+        if (ids.isEmpty()) return List.of();
+        return ids.stream()
+                .flatMap(id -> cahierTexteRepository.findByCoursId(id).stream())
+                .map(cahierTexteMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public CahierTexteDto modifierCahierTexte(UUID enseignantId, UUID id, CahierTexteDto dto) {
+        var entity = cahierTexteRepository.findById(id);
+        if (entity == null) throw new NotFoundException("Cahier de texte non trouvé");
+        var cours = coursRepository.findById(entity.coursId);
+        if (cours == null || !enseignantId.equals(cours.professeurId))
+            throw new NotFoundException("Ce cahier de texte n'est pas modifiable par cet enseignant");
+
+        if (dto.getContenuTraite() != null) entity.contenuTraite = dto.getContenuTraite();
+        if (dto.getObservations() != null) entity.observations = dto.getObservations();
+        if (dto.getEtapeProgramme() != null) entity.etapeProgramme = dto.getEtapeProgramme();
+        if (dto.getProgrammeValide() != null) entity.programmeValide = dto.getProgrammeValide();
+
+        return cahierTexteMapper.toDto(cahierTexteRepository.persist(entity));
     }
 }

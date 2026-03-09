@@ -24,7 +24,7 @@ public class SwaggerConfig implements OASFilter, ConfigSource {
 
     static {
         CONFIGURATION.put("quarkus.swagger-ui.path", "/q/swagger-ui");
-        CONFIGURATION.put("quarkus.swagger-ui.always-include", "true");
+        // always-include contrôlé par profil : true en dev (application-dev.yml), false en prod (application-prod.yml)
         CONFIGURATION.put("quarkus.smallrye-openapi.path", "/q/openapi");
     }
 

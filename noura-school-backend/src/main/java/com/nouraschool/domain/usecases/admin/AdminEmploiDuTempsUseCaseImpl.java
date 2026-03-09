@@ -8,6 +8,7 @@ import com.nouraschool.domain.repositories.ClasseRepository;
 import com.nouraschool.domain.repositories.EmploiDuTempsRepository;
 import com.nouraschool.domain.repositories.EnseignantRepository;
 import com.nouraschool.domain.repositories.MatiereRepository;
+import com.nouraschool.runtime.tenant.TenantContext;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -29,10 +30,17 @@ public class AdminEmploiDuTempsUseCaseImpl implements AdminEmploiDuTempsUseCase 
     EnseignantRepository enseignantRepository;
     @Inject
     EmploiDuTempsMapper emploiDuTempsMapper;
+    @Inject
+    TenantContext tenantContext;
 
     @Override
     public List<EmploiDuTempsDto> findAll() {
         return emploiDuTempsRepository.findAll().stream().map(emploiDuTempsMapper::toDto).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<EmploiDuTempsDto> findByClasseId(UUID classeId) {
+        return emploiDuTempsRepository.findByClasseId(classeId).stream().map(emploiDuTempsMapper::toDto).collect(Collectors.toList());
     }
 
     @Override
@@ -46,6 +54,7 @@ public class AdminEmploiDuTempsUseCaseImpl implements AdminEmploiDuTempsUseCase 
     @Transactional
     public EmploiDuTempsDto create(EmploiDuTempsDto dto) {
         EmploiDuTempsEntity entity = emploiDuTempsMapper.toEntity(dto);
+        if (tenantContext.hasTenant()) entity.tenantId = tenantContext.getTenantId();
         if (dto.getClasseId() != null) entity.classe = classeRepository.findById(dto.getClasseId());
         if (dto.getMatiereId() != null) entity.matiere = matiereRepository.findById(dto.getMatiereId());
         if (dto.getEnseignantId() != null) entity.enseignantEntity = enseignantRepository.findById(dto.getEnseignantId());

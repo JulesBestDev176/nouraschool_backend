@@ -13,6 +13,9 @@ public interface UserRepository {
 
     UserEntity findByUsernameOrEmail(String identifier);
 
+    /** Email, username ou numéro de téléphone (Sénégal, Mauritanie, Mali, Guinée, Gambie, Bissau, Côte d'Ivoire). */
+    UserEntity findByUsernameOrEmailOrPhone(String login);
+
     UserEntity findByUsername(String username);
 
     UserEntity persist(UserEntity user);

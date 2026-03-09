@@ -1,6 +1,5 @@
 package com.nouraschool.domain.exception.codes;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,11 +13,11 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class ErrorDto {
-    private String title;
-    private Integer status;
-    private Integer code;
+    /** Code métier (task.md section 3.7) : IDENTIFIANTS_INVALIDES, RESSOURCE_INTROUVABLE, etc. */
+    private String code;
     private String message;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
-    private LocalDateTime timestamp;
     private List<String> details;
+    private String correlationId;
+    /** ISO 8601 : 2025-06-01T10:30:00Z */
+    private String timestamp;
 }

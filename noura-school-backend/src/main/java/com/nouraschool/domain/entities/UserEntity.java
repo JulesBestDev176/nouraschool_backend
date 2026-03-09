@@ -6,12 +6,23 @@ import io.quarkus.security.jpa.Roles;
 import io.quarkus.security.jpa.UserDefinition;
 import io.quarkus.security.jpa.Username;
 import jakarta.persistence.*;
+import org.hibernate.annotations.Filter;
+import org.hibernate.annotations.FilterDef;
+import org.hibernate.annotations.ParamDef;
+
+import java.util.UUID;
 
 @Entity
 @Table(name = "users")
 @Inheritance(strategy = InheritanceType.JOINED)
 @UserDefinition
+@FilterDef(name = "tenantFilter", parameters = @ParamDef(name = "tenantId", type = UUID.class))
+@Filter(name = "tenantFilter", condition = "tenant_id = :tenantId")
 public class UserEntity extends AbstractEntity {
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "tenant_id", nullable = false)
+    public TenantEntity tenant;
 
     @Column(nullable = false, unique = true)
     @Username
@@ -47,4 +58,7 @@ public class UserEntity extends AbstractEntity {
 
     @Column(nullable = false)
     public Boolean active = true;
+
+    @Column(name = "must_change_password", nullable = false)
+    public Boolean mustChangePassword = true;
 }

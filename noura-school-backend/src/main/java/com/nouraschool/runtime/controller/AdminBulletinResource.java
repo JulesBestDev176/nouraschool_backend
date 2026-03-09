@@ -2,7 +2,7 @@ package com.nouraschool.runtime.controller;
 
 import com.nouraschool.domain.enums.FormatExport;
 import com.nouraschool.domain.dtos.BulletinDto;
-import com.nouraschool.domain.dtos.PageRequest;
+import com.nouraschool.domain.utils.PageUtils;
 import com.nouraschool.domain.usecases.admin.AdminBulletinUseCase;
 import com.nouraschool.domain.services.BulletinExportService;
 import jakarta.annotation.security.RolesAllowed;
@@ -18,7 +18,7 @@ import java.io.ByteArrayOutputStream;
 import java.util.UUID;
 
 @Path("/api/admin/bulletins")
-@RolesAllowed("ADMIN")
+@RolesAllowed({"ADMIN", "SURVEILLANT"})
 @SecurityRequirement(name = "Bearer")
 @Produces({MediaType.APPLICATION_JSON, "application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"})
 @Consumes(MediaType.APPLICATION_JSON)
@@ -35,8 +35,7 @@ public class AdminBulletinResource {
                          @QueryParam("sortBy") String sortBy,
                          @QueryParam("asc") @DefaultValue("true") boolean asc) {
         if (page >= 0) {
-            var pr = PageRequest.builder().page(page).size(size).sortBy(sortBy).ascending(asc).build();
-            return adminBulletinUseCase.findAll(pr);
+            return adminBulletinUseCase.findAll(PageUtils.of(page, size, sortBy, asc));
         }
         return adminBulletinUseCase.findAll();
     }

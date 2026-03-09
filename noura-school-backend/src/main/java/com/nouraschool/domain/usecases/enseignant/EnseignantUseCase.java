@@ -24,4 +24,16 @@ public interface EnseignantUseCase {
     AbsenceEnseignantDto declarerAbsence(UUID enseignantId, AbsenceEnseignantDto dto);
 
     List<ReclamationDto> reclamationsMesMatieres(UUID enseignantId);
+
+    AppelDto creerAppel(UUID enseignantId, AppelDto dto);
+
+    List<AppelDto> listeAppels(UUID enseignantId, UUID coursId);
+
+    AppelDto soumettreAppel(UUID enseignantId, UUID appelId);
+
+    CahierTexteDto creerCahierTexte(UUID enseignantId, CahierTexteDto dto);
+
+    List<CahierTexteDto> listeCahierTexte(UUID enseignantId, UUID coursId);
+
+    CahierTexteDto modifierCahierTexte(UUID enseignantId, UUID id, CahierTexteDto dto);
 }

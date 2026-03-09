@@ -24,5 +24,7 @@ public class AbsenceEleveDto {
     private String motif;
     private String documentJustificatifUrl;
     private UUID declaredBy;
+    private String statut;
+    private UUID approuvePar;
     private LocalDateTime createdAt;
 }

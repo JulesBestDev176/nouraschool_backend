@@ -5,6 +5,7 @@ import com.nouraschool.domain.entities.ClasseEntity;
 import com.nouraschool.domain.exception.errors.NotFoundException;
 import com.nouraschool.domain.mappers.ClasseMapper;
 import com.nouraschool.domain.repositories.ClasseRepository;
+import com.nouraschool.runtime.tenant.TenantContext;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -20,6 +21,8 @@ public class AdminClasseUseCaseImpl implements AdminClasseUseCase {
     ClasseRepository classeRepository;
     @Inject
     ClasseMapper classeMapper;
+    @Inject
+    TenantContext tenantContext;
 
     @Override
     public List<ClasseDto> findAll() {
@@ -37,6 +40,7 @@ public class AdminClasseUseCaseImpl implements AdminClasseUseCase {
     @Transactional
     public ClasseDto create(ClasseDto dto) {
         ClasseEntity entity = classeMapper.toEntity(dto);
+        if (tenantContext.hasTenant()) entity.tenantId = tenantContext.getTenantId();
         return classeMapper.toDto(classeRepository.persist(entity));
     }
 

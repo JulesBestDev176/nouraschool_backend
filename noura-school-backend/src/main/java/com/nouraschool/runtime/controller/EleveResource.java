@@ -68,9 +68,23 @@ public class EleveResource {
     }
 
     @GET
+    @Path("/reclamations")
+    public List<ReclamationDto> mesReclamations(@Context SecurityContext sc) {
+        var id = CurrentUser.getUserId(sc).orElseThrow();
+        return eleveUseCase.mesReclamations(id);
+    }
+
+    @GET
     @Path("/notifications")
     public List<NotificationDto> mesNotifications(@Context SecurityContext sc) {
         var id = CurrentUser.getUserId(sc).orElseThrow();
         return eleveUseCase.mesNotifications(id);
+    }
+
+    @PATCH
+    @Path("/notifications/{id}/lire")
+    public NotificationDto marquerNotificationCommeLue(@Context SecurityContext sc, @PathParam("id") java.util.UUID id) {
+        var userId = CurrentUser.getUserId(sc).orElseThrow();
+        return eleveUseCase.marquerNotificationCommeLue(userId, id);
     }
 }

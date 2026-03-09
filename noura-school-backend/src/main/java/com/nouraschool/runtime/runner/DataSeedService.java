@@ -1,7 +1,9 @@
 package com.nouraschool.runtime.runner;
 
 import com.nouraschool.domain.entities.AdministrateurEntity;
+import com.nouraschool.domain.entities.TenantEntity;
 import com.nouraschool.domain.enums.UserRole;
+import com.nouraschool.domain.repositories.TenantRepository;
 import com.nouraschool.domain.repositories.UserRepository;
 import com.nouraschool.domain.services.PasswordEncoder;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -24,7 +26,8 @@ public class DataSeedService {
 
     @Inject
     UserRepository userRepository;
-
+    @Inject
+    TenantRepository tenantRepository;
     @Inject
     PasswordEncoder passwordEncoder;
 
@@ -34,7 +37,9 @@ public class DataSeedService {
             LOG.debugf("Admin user '%s' already exists, skipping seed.", DEFAULT_ADMIN_USERNAME);
             return;
         }
+        TenantEntity defaultTenant = tenantRepository.findDefault();
         AdministrateurEntity admin = new AdministrateurEntity();
+        admin.tenant = defaultTenant;
         admin.username = DEFAULT_ADMIN_USERNAME;
         admin.email = DEFAULT_ADMIN_EMAIL;
         admin.password = passwordEncoder.encode(DEFAULT_ADMIN_PASSWORD);
@@ -44,6 +49,7 @@ public class DataSeedService {
         admin.adresse = DEFAULT_ADMIN_ADRESSE;
         admin.role = UserRole.ADMIN;
         admin.active = true;
+        admin.mustChangePassword = true;
         userRepository.persist(admin);
         LOG.infof("Seed: admin user created (username=%s). Change password in production.", DEFAULT_ADMIN_USERNAME);
     }

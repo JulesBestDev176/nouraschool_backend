@@ -1,7 +1,0 @@
-internalNameCode;internalCode;httpCode;internalMessage
-INVALID_CREDENTIALS;401;401;Invalid username or password
-USER_INACTIVE;403;403;User account is inactive
-REFRESH_TOKEN_INVALID;401;401;Invalid or revoked refresh token
-REFRESH_TOKEN_EXPIRED;401;401;Refresh token has expired
-NOT_FOUND;404;404;Resource not found
-

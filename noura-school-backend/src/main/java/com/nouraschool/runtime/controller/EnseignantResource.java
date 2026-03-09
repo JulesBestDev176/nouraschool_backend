@@ -1,6 +1,8 @@
 package com.nouraschool.runtime.controller;
 
 import com.nouraschool.domain.dtos.AbsenceEnseignantDto;
+import com.nouraschool.domain.dtos.AppelDto;
+import com.nouraschool.domain.dtos.CahierTexteDto;
 import com.nouraschool.domain.dtos.BulletinDto;
 import com.nouraschool.domain.dtos.EnseignantDto;
 import com.nouraschool.domain.dtos.MatiereClasseDto;
@@ -94,5 +96,47 @@ public class EnseignantResource {
     public List<ReclamationDto> reclamationsMesMatieres(@Context SecurityContext sc) {
         var id = CurrentUser.getUserId(sc).orElseThrow();
         return enseignantUseCase.reclamationsMesMatieres(id);
+    }
+
+    @POST
+    @Path("/appels")
+    public Response creerAppel(@Context SecurityContext sc, @Valid AppelDto dto) {
+        var id = CurrentUser.getUserId(sc).orElseThrow();
+        return Response.status(Response.Status.CREATED).entity(enseignantUseCase.creerAppel(id, dto)).build();
+    }
+
+    @GET
+    @Path("/appels")
+    public List<AppelDto> listeAppels(@Context SecurityContext sc, @QueryParam("coursId") UUID coursId) {
+        var id = CurrentUser.getUserId(sc).orElseThrow();
+        return enseignantUseCase.listeAppels(id, coursId);
+    }
+
+    @PATCH
+    @Path("/appels/{appelId}/soumettre")
+    public AppelDto soumettreAppel(@Context SecurityContext sc, @PathParam("appelId") UUID appelId) {
+        var id = CurrentUser.getUserId(sc).orElseThrow();
+        return enseignantUseCase.soumettreAppel(id, appelId);
+    }
+
+    @POST
+    @Path("/cahier-texte")
+    public Response creerCahierTexte(@Context SecurityContext sc, @Valid CahierTexteDto dto) {
+        var id = CurrentUser.getUserId(sc).orElseThrow();
+        return Response.status(Response.Status.CREATED).entity(enseignantUseCase.creerCahierTexte(id, dto)).build();
+    }
+
+    @GET
+    @Path("/cahier-texte")
+    public List<CahierTexteDto> listeCahierTexte(@Context SecurityContext sc, @QueryParam("coursId") UUID coursId) {
+        var id = CurrentUser.getUserId(sc).orElseThrow();
+        return enseignantUseCase.listeCahierTexte(id, coursId);
+    }
+
+    @PATCH
+    @Path("/cahier-texte/{id}")
+    public CahierTexteDto modifierCahierTexte(@Context SecurityContext sc, @PathParam("id") UUID id, @Valid CahierTexteDto dto) {
+        var userId = CurrentUser.getUserId(sc).orElseThrow();
+        return enseignantUseCase.modifierCahierTexte(userId, id, dto);
     }
 }

@@ -5,10 +5,14 @@ import jakarta.persistence.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "emplois_du_temps")
 public class EmploiDuTempsEntity extends AbstractEntity {
+
+    @Column(name = "tenant_id", nullable = false)
+    public UUID tenantId;
 
     @ManyToOne
     @JoinColumn(name = "classe_id", nullable = false)
@@ -43,4 +47,7 @@ public class EmploiDuTempsEntity extends AbstractEntity {
 
     @Column(name = "date_fin_validite")
     public LocalDate dateFinValidite;
+
+    @Column(nullable = false)
+    public Boolean publie = false;
 }

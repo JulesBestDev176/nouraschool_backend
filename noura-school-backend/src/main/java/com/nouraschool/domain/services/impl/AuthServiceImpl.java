@@ -1,15 +1,22 @@
 package com.nouraschool.domain.services.impl;
 
+import com.nouraschool.domain.dtos.AuthMeDto;
 import com.nouraschool.domain.dtos.LoginRequest;
 import com.nouraschool.domain.dtos.LoginResponse;
 import com.nouraschool.domain.entities.RefreshTokenEntity;
 import com.nouraschool.domain.entities.UserEntity;
+import com.nouraschool.domain.constants.Constants;
+import com.nouraschool.domain.enums.UserRole;
 import com.nouraschool.domain.exception.errors.InvalidRequestException;
 import com.nouraschool.domain.repositories.RefreshTokenRepository;
+import com.nouraschool.domain.repositories.SurveillantCycleRepository;
 import com.nouraschool.domain.repositories.UserRepository;
+import com.nouraschool.domain.services.AuditLogService;
 import com.nouraschool.domain.services.AuthService;
 import com.nouraschool.domain.services.JwtGenerator;
+import com.nouraschool.domain.services.NotificationLogService;
 import com.nouraschool.domain.services.PasswordEncoder;
+import com.nouraschool.domain.services.RedisService;
 import com.nouraschool.domain.services.TokenHasher;
 import com.nouraschool.runtime.aop.Logged;
 import com.nouraschool.runtime.aop.Timed;
@@ -17,10 +24,14 @@ import com.nouraschool.runtime.config.ApplicationProperties;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import jakarta.ws.rs.core.SecurityContext;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -30,52 +41,164 @@ import java.util.UUID;
 public class AuthServiceImpl implements AuthService {
 
     private static final int REFRESH_TOKEN_DAYS = 7;
+    private static final String REDIS_KEY_LOCKOUT = "auth:lockout:";
+    private static final String REDIS_KEY_RESET = "auth:reset:";
+    private static final String REDIS_KEY_RATELIMIT_FORGOT = "auth:ratelimit:forgot:";
 
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final SurveillantCycleRepository surveillantCycleRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtGenerator jwtGenerator;
     private final TokenHasher tokenHasher;
     private final ApplicationProperties applicationProperties;
+    private final AuditLogService auditLogService;
+    private final RedisService redisService;
+    private final NotificationLogService notificationLogService;
+    private final int lockoutMaxAttempts;
+    private final long lockoutTtlSeconds;
+    private final long resetPasswordTokenTtlSeconds;
+    private final int forgotPerEmail;
+    private final long forgotWindowSeconds;
 
     @Inject
     public AuthServiceImpl(
             UserRepository userRepository,
             RefreshTokenRepository refreshTokenRepository,
+            SurveillantCycleRepository surveillantCycleRepository,
             PasswordEncoder passwordEncoder,
             JwtGenerator jwtGenerator,
             TokenHasher tokenHasher,
-            ApplicationProperties applicationProperties) {
+            ApplicationProperties applicationProperties,
+            AuditLogService auditLogService,
+            RedisService redisService,
+            NotificationLogService notificationLogService,
+            @ConfigProperty(name = "app.auth.lockout.max-attempts", defaultValue = "5") int lockoutMaxAttempts,
+            @ConfigProperty(name = "app.auth.lockout.ttl-seconds", defaultValue = "600") long lockoutTtlSeconds,
+            @ConfigProperty(name = "app.auth.reset-password.token-ttl-seconds", defaultValue = "3600") long resetPasswordTokenTtlSeconds,
+            @ConfigProperty(name = "app.auth.rate-limit.forgot-per-email", defaultValue = "3") int forgotPerEmail,
+            @ConfigProperty(name = "app.auth.rate-limit.forgot-window-seconds", defaultValue = "900") long forgotWindowSeconds) {
         this.userRepository = userRepository;
         this.refreshTokenRepository = refreshTokenRepository;
+        this.surveillantCycleRepository = surveillantCycleRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtGenerator = jwtGenerator;
         this.tokenHasher = tokenHasher;
         this.applicationProperties = applicationProperties;
+        this.auditLogService = auditLogService;
+        this.redisService = redisService;
+        this.notificationLogService = notificationLogService;
+        this.lockoutMaxAttempts = lockoutMaxAttempts;
+        this.lockoutTtlSeconds = lockoutTtlSeconds;
+        this.resetPasswordTokenTtlSeconds = resetPasswordTokenTtlSeconds;
+        this.forgotPerEmail = forgotPerEmail;
+        this.forgotWindowSeconds = forgotWindowSeconds;
     }
 
     @Override
     @Transactional
     public LoginResponse login(LoginRequest request) {
-        UserEntity user = userRepository.findByUsernameOrEmail(request.getUsername());
+        String lockoutKey = REDIS_KEY_LOCKOUT + normalizeLockoutKey(request.getLogin());
+        int attempts = getLockoutAttempts(lockoutKey);
+        if (attempts >= lockoutMaxAttempts) {
+            throw new InvalidRequestException("COMPTE_VERROUILLE");
+        }
+        checkExponentialDelay(lockoutKey, attempts);
+
+        UserEntity user = userRepository.findByUsernameOrEmailOrPhone(request.getLogin());
         if (user == null) {
-            throw new InvalidRequestException("INVALID_CREDENTIALS");
+            incrementLockout(lockoutKey);
+            throw new InvalidRequestException("IDENTIFIANTS_INVALIDES");
         }
         if (!user.active) {
             throw new InvalidRequestException("USER_INACTIVE");
         }
-        if (!passwordEncoder.matches(request.getPassword(), user.password)) {
-            throw new InvalidRequestException("INVALID_CREDENTIALS");
+        if (user.tenant != null && !Boolean.TRUE.equals(user.tenant.actif)) {
+            throw new InvalidRequestException("TENANT_INACTIF");
         }
+        if (user.role == UserRole.PARENT) {
+            throw new InvalidRequestException("PARENT_LOGIN_DISABLED");
+        }
+        if (!passwordEncoder.matches(request.getPassword(), user.password)) {
+            int newAttempts = incrementLockout(lockoutKey);
+            if (newAttempts >= lockoutMaxAttempts) {
+                throw new InvalidRequestException("COMPTE_VERROUILLE");
+            }
+            throw new InvalidRequestException("IDENTIFIANTS_INVALIDES");
+        }
+
+        redisService.delete(lockoutKey);
 
         long lifespan = applicationProperties.jwt().accessTokenLifespan();
         String accessToken = jwtGenerator.generateAccessToken(user, Set.of(user.role.name()), lifespan);
         String refreshToken = createAndPersistRefreshToken(user);
+        boolean mustChange = user.mustChangePassword != null && user.mustChangePassword;
 
-        return LoginResponse.of(accessToken, refreshToken, lifespan);
+        auditLogService.log("LOGIN_SUCCESS", user.tenant != null ? user.tenant.id : null, user.id, user.role != null ? user.role.name() : null, null, null, null, null, null);
+
+        return LoginResponse.of(accessToken, refreshToken, lifespan, mustChange);
+    }
+
+    private static String normalizeLockoutKey(String login) {
+        return (login != null ? login.trim().toLowerCase() : "").replaceAll("[^a-z0-9@.+\\-]", "_");
+    }
+
+    private int getCount(String key) {
+        String v = redisService.get(key);
+        if (v == null || v.isBlank()) return 0;
+        try {
+            return Integer.parseInt(v.trim());
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+    }
+
+    private void incrementCount(String key, long ttlSeconds) {
+        int current = getCount(key);
+        redisService.set(key, String.valueOf(current + 1), ttlSeconds);
+    }
+
+    private int getLockoutAttempts(String lockoutKey) {
+        String v = redisService.get(lockoutKey);
+        if (v == null || v.isBlank()) return 0;
+        int colon = v.indexOf(':');
+        String countPart = colon >= 0 ? v.substring(0, colon).trim() : v.trim();
+        try {
+            return Integer.parseInt(countPart);
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+    }
+
+    /** Délai exponentiel : si tentatives > 0, exige 2^attempts secondes (max 120) depuis la dernière tentative. */
+    private void checkExponentialDelay(String lockoutKey, int attempts) {
+        if (attempts <= 0) return;
+        String v = redisService.get(lockoutKey);
+        if (v == null || v.isBlank()) return;
+        int colon = v.indexOf(':');
+        if (colon < 0) return;
+        try {
+            long lastEpoch = Long.parseLong(v.substring(colon + 1).trim());
+            long delaySeconds = Math.min(1L << Math.min(attempts, 7), 120L);
+            if (Instant.now().getEpochSecond() - lastEpoch < delaySeconds) {
+                throw new InvalidRequestException("COMPTE_VERROUILLE");
+            }
+        } catch (NumberFormatException ignored) {
+            // ignore malformed value
+        }
+    }
+
+    /** Incrémente le compteur de tentatives (format "count:lastEpochSec") et retourne la nouvelle valeur. */
+    private int incrementLockout(String lockoutKey) {
+        int current = getLockoutAttempts(lockoutKey);
+        int next = current + 1;
+        long now = Instant.now().getEpochSecond();
+        redisService.set(lockoutKey, next + ":" + now, lockoutTtlSeconds);
+        return next;
     }
 
     @Override
+    @Transactional
     public LoginResponse refresh(String refreshTokenValue) {
         String tokenHash = tokenHasher.hash(refreshTokenValue);
         RefreshTokenEntity refreshToken = refreshTokenRepository.findByTokenHash(tokenHash);
@@ -83,6 +206,7 @@ public class AuthServiceImpl implements AuthService {
             throw new InvalidRequestException("REFRESH_TOKEN_INVALID");
         }
         if (refreshToken.revoked) {
+            refreshTokenRepository.revokeByUserId(refreshToken.user.id);
             throw new InvalidRequestException("REFRESH_TOKEN_INVALID");
         }
         if (refreshToken.expiresAt.isBefore(Instant.now())) {
@@ -96,13 +220,113 @@ public class AuthServiceImpl implements AuthService {
             throw new InvalidRequestException("USER_INACTIVE");
         }
 
+        refreshToken.revoked = true;
+        refreshTokenRepository.persist(refreshToken);
+        String newRefreshToken = createAndPersistRefreshToken(user);
+
         long lifespan = applicationProperties.jwt().accessTokenLifespan();
         String accessToken = jwtGenerator.generateAccessToken(user, Set.of(user.role.name()), lifespan);
-        return LoginResponse.of(accessToken, refreshTokenValue, lifespan);
+        boolean mustChange = user.mustChangePassword != null && user.mustChangePassword;
+        return LoginResponse.of(accessToken, newRefreshToken, lifespan, mustChange);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public AuthMeDto me(SecurityContext securityContext) {
+        UUID userId = com.nouraschool.runtime.security.CurrentUser.getUserId(securityContext)
+                .orElseThrow(() -> new InvalidRequestException("ACCES_REFUSE"));
+        UserEntity user = userRepository.findById(userId);
+        if (user == null) {
+            throw new InvalidRequestException("RESSOURCE_INTROUVABLE");
+        }
+        String tenantId = user.tenant != null ? user.tenant.id.toString() : null;
+        List<String> cycles = user.role == UserRole.SURVEILLANT
+                ? surveillantCycleRepository.findCycleCodesBySurveillantId(userId)
+                : Collections.emptyList();
+        return AuthMeDto.builder()
+                .id(user.id)
+                .nom(user.lastName)
+                .prenom(user.firstName)
+                .email(user.email)
+                .role(user.role != null ? user.role.name() : null)
+                .tenantId(tenantId)
+                .cycles(cycles)
+                .actif(user.active)
+                .build();
     }
 
     @Override
     public void logout(UUID userId) {
+        refreshTokenRepository.revokeByUserId(userId);
+        auditLogService.log("LOGOUT", null, userId, null, null, null, null, null, null);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public void forgotPassword(String email) {
+        if (email == null || email.isBlank()) return;
+        String normalizedEmail = email.trim().toLowerCase();
+        String rateLimitKey = REDIS_KEY_RATELIMIT_FORGOT + normalizedEmail.replaceAll("[^a-z0-9@.+\\-]", "_");
+        int count = getCount(rateLimitKey);
+        if (count >= forgotPerEmail) {
+            throw new InvalidRequestException("TOO_MANY_REQUESTS");
+        }
+        incrementCount(rateLimitKey, forgotWindowSeconds);
+
+        UserEntity user = userRepository.findByUsernameOrEmailOrPhone(email.trim());
+        if (user == null) return;
+        String token = UUID.randomUUID().toString();
+        redisService.set(REDIS_KEY_RESET + token, user.id.toString(), resetPasswordTokenTtlSeconds);
+        notificationLogService.log(
+                user.tenant != null ? user.tenant.id : null,
+                NotificationLogService.CANAL_EMAIL,
+                user.email,
+                "Réinitialisation du mot de passe",
+                "Token: " + token
+        );
+    }
+
+    @Override
+    @Transactional
+    public void resetPassword(String token, String newPassword) {
+        if (token == null || token.isBlank() || newPassword == null || newPassword.isBlank()) {
+            throw new InvalidRequestException("RESET_TOKEN_INVALIDE");
+        }
+        if (newPassword.length() < Constants.PASSWORD_MIN_LENGTH) {
+            throw new InvalidRequestException("MOT_DE_PASSE_TROP_COURT");
+        }
+        String key = REDIS_KEY_RESET + token.trim();
+        String userIdStr = redisService.get(key);
+        if (userIdStr == null || userIdStr.isBlank()) {
+            throw new InvalidRequestException("RESET_TOKEN_INVALIDE");
+        }
+        redisService.delete(key);
+        UUID userId = UUID.fromString(userIdStr);
+        UserEntity user = userRepository.findById(userId);
+        if (user == null) {
+            throw new InvalidRequestException("RESET_TOKEN_INVALIDE");
+        }
+        user.password = passwordEncoder.encode(newPassword);
+        user.mustChangePassword = false;
+        userRepository.persist(user);
+    }
+
+    @Override
+    @Transactional
+    public void changePassword(UUID userId, String oldPassword, String newPassword) {
+        UserEntity user = userRepository.findById(userId);
+        if (user == null) {
+            throw new InvalidRequestException("RESSOURCE_INTROUVABLE");
+        }
+        if (!passwordEncoder.matches(oldPassword, user.password)) {
+            throw new InvalidRequestException("MOT_DE_PASSE_ACTUEL_INCORRECT");
+        }
+        if (newPassword.length() < Constants.PASSWORD_MIN_LENGTH) {
+            throw new InvalidRequestException("MOT_DE_PASSE_TROP_COURT");
+        }
+        user.password = passwordEncoder.encode(newPassword);
+        user.mustChangePassword = false;
+        userRepository.persist(user);
         refreshTokenRepository.revokeByUserId(userId);
     }
 

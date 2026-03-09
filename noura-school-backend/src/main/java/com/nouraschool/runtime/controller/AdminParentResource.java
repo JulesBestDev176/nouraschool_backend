@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Path("/api/admin/parents")
-@RolesAllowed("ADMIN")
+@RolesAllowed({"ADMIN", "CAISSIER"})
 @SecurityRequirement(name = "Bearer")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)

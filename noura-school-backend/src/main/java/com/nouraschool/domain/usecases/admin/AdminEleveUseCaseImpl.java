@@ -14,6 +14,7 @@ import com.nouraschool.domain.mappers.EleveMapper;
 import com.nouraschool.domain.repositories.ClasseRepository;
 import com.nouraschool.domain.repositories.EleveRepository;
 import com.nouraschool.domain.repositories.ParentRepository;
+import com.nouraschool.domain.repositories.TenantRepository;
 import com.nouraschool.domain.repositories.UserRepository;
 import com.nouraschool.domain.services.PasswordEncoder;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -36,6 +37,8 @@ public class AdminEleveUseCaseImpl implements AdminEleveUseCase {
     ParentRepository parentRepository;
     @Inject
     UserRepository userRepository;
+    @Inject
+    TenantRepository tenantRepository;
     @Inject
     EleveMapper eleveMapper;
     @Inject
@@ -71,9 +74,11 @@ public class AdminEleveUseCaseImpl implements AdminEleveUseCase {
     @Transactional
     public EleveDto create(EleveCreateDto dto) {
         try {
-            if (userRepository.findByUsername(dto.getUsername()) != null) throw new InvalidRequestException("USERNAME_EXISTS");
-            if (userRepository.findByUsernameOrEmail(dto.getEmail()) != null) throw new InvalidRequestException("EMAIL_EXISTS");
+            if (userRepository.findByUsername(dto.getUsername()) != null) throw new InvalidRequestException("EMAIL_DEJA_UTILISE");
+            if (userRepository.findByUsernameOrEmail(dto.getEmail()) != null) throw new InvalidRequestException("EMAIL_DEJA_UTILISE");
             var entity = new EleveEntity();
+            entity.tenant = tenantRepository.findDefault();
+            entity.mustChangePassword = true;
             mapCreateToEntity(dto, entity);
             entity.role = UserRole.ELEVE;
             entity.password = passwordEncoder.encode(dto.getPassword());

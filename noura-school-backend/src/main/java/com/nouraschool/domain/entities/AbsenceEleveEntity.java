@@ -29,6 +29,12 @@ public class AbsenceEleveEntity extends AbstractEntity {
     @Column(name = "declared_by")
     public UUID declaredBy;
 
+    @Column(length = 20)
+    public String statut = "EN_ATTENTE";
+
+    @Column(name = "approuve_par")
+    public UUID approuvePar;
+
     @ManyToOne
     @JoinColumn(name = "eleve_id", nullable = false)
     public EleveEntity eleve;

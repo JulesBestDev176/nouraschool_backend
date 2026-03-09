@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Path("/api/admin/notes")
-@RolesAllowed("ADMIN")
+@RolesAllowed({"ADMIN", "SURVEILLANT"})
 @SecurityRequirement(name = "Bearer")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)

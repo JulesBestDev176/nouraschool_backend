@@ -19,5 +19,9 @@ public interface EleveUseCase {
 
     ReclamationDto soumettreReclamation(UUID eleveId, ReclamationDto dto);
 
+    List<ReclamationDto> mesReclamations(UUID eleveId);
+
     List<NotificationDto> mesNotifications(UUID eleveId);
+
+    NotificationDto marquerNotificationCommeLue(UUID eleveId, UUID notificationId);
 }

@@ -2,6 +2,7 @@ package com.nouraschool.domain.usecases.eleve;
 
 import com.nouraschool.domain.dtos.*;
 import com.nouraschool.domain.entities.EleveEntity;
+import com.nouraschool.domain.entities.NotificationEntity;
 import com.nouraschool.domain.exception.errors.NotFoundException;
 import com.nouraschool.domain.mappers.*;
 import com.nouraschool.domain.repositories.*;
@@ -46,7 +47,8 @@ public class EleveUseCaseImpl implements EleveUseCase {
 
     @Override
     public List<BulletinDto> mesBulletins(UUID eleveId) {
-        return bulletinRepository.findByEleveId(eleveId).stream().map(bulletinMapper::toDto).collect(Collectors.toList());
+        return bulletinRepository.findByEleveIdAndStatut(eleveId, "VALIDE").stream()
+                .map(bulletinMapper::toDto).collect(Collectors.toList());
     }
 
     @Override
@@ -74,8 +76,24 @@ public class EleveUseCaseImpl implements EleveUseCase {
     }
 
     @Override
+    public List<ReclamationDto> mesReclamations(UUID eleveId) {
+        return reclamationRepository.findByEleveId(eleveId).stream()
+                .map(reclamationMapper::toDto).collect(Collectors.toList());
+    }
+
+    @Override
     public List<NotificationDto> mesNotifications(UUID eleveId) {
         return notificationRepository.findByUserId(eleveId).stream()
                 .map(notificationMapper::toDto).collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public NotificationDto marquerNotificationCommeLue(UUID eleveId, UUID notificationId) {
+        com.nouraschool.domain.entities.NotificationEntity entity = notificationRepository.findById(notificationId);
+        if (entity == null) throw new NotFoundException("Notification non trouvée");
+        if (!eleveId.equals(entity.userId)) throw new NotFoundException("Notification non trouvée");
+        entity.lue = true;
+        return notificationMapper.toDto(notificationRepository.persist(entity));
     }
 }

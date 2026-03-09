@@ -1,15 +1,15 @@
 package com.nouraschool.domain.entities;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
-
+import jakarta.persistence.*;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "matieres")
 public class MatiereEntity extends AbstractEntity {
+
+    @Column(name = "tenant_id", nullable = false)
+    public UUID tenantId;
 
     @Column(nullable = false, unique = true)
     public String nom;

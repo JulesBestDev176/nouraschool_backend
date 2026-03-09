@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Path("/api/admin/absences-eleves")
-@RolesAllowed("ADMIN")
+@RolesAllowed({"ADMIN", "SURVEILLANT"})
 @SecurityRequirement(name = "Bearer")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
@@ -50,5 +50,21 @@ public class AdminAbsenceEleveResource {
     public Response delete(@PathParam("id") String id) {
         adminAbsenceEleveUseCase.delete(UUID.fromString(id));
         return Response.noContent().build();
+    }
+
+    @POST
+    @Path("/{id}/approuver")
+    public AbsenceEleveDto approuver(@PathParam("id") String id, @jakarta.ws.rs.core.Context jakarta.ws.rs.core.SecurityContext securityContext) {
+        java.util.UUID approuvePar = com.nouraschool.runtime.security.CurrentUser.getUserId(securityContext)
+                .orElseThrow(() -> new com.nouraschool.domain.exception.errors.InvalidRequestException("Utilisateur non authentifié"));
+        return adminAbsenceEleveUseCase.approuver(UUID.fromString(id), approuvePar);
+    }
+
+    @POST
+    @Path("/{id}/rejeter")
+    public AbsenceEleveDto rejeter(@PathParam("id") String id, @jakarta.ws.rs.core.Context jakarta.ws.rs.core.SecurityContext securityContext) {
+        java.util.UUID approuvePar = com.nouraschool.runtime.security.CurrentUser.getUserId(securityContext)
+                .orElseThrow(() -> new com.nouraschool.domain.exception.errors.InvalidRequestException("Utilisateur non authentifié"));
+        return adminAbsenceEleveUseCase.rejeter(UUID.fromString(id), approuvePar);
     }
 }

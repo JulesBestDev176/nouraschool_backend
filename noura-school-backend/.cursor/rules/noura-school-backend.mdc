@@ -1,0 +1,80 @@
+---
+description: Règles et conventions du projet Noura School Backend (task.md, auth, erreurs, logs, paiement)
+alwaysApply: true
+---
+
+# Règlements du projet Noura School Backend
+
+- **Source de vérité** : **`task.md`** (racine)
+- **Validation** : **`docs/VALIDATION_ETAPES.md`**
+- **Suivi** : **`docs/SUIVI_PROJET.md`**
+
+---
+
+## Stack & structure
+
+- **Framework** : Quarkus 3.x, **Java 21**
+- **Package** : `com.nouraschool`
+- **Couches** : `runtime` (controllers, config, security, aop) | `domain` (entities, dtos, usecases, services, repositories)
+- **API** : préfixe `/api/v1/`, REST JSON, OpenAPI/Swagger
+- **Base** : PostgreSQL (Flyway), schéma en `validate` uniquement
+
+---
+
+## Configuration (application.yml & ApplicationProperties)
+
+- **Tout ce qui est important et ne change pas à chaque build** doit être dans **`application.yml`** et exposé via **`ApplicationProperties`** (ou `@ConfigMapping`), pas en dur dans le code.
+- Exemples : JWT (issuer, audience, lifespan), bcrypt cost, codes d’erreur (http-code + message), pays / indicatifs téléphone pour login, activation Elasticsearch, provider de paiement.
+- **Ne pas dupliquer** : préférer `app.*` et référencer avec `${...}` dans les blocs Quarkus si besoin.
+- **Paiement** : prévoir `app.payment.provider=payetech` (intégration API Payetech plus tard) ; ne pas coder de logique métier de paiement sans cette config.
+
+---
+
+## Gestion des erreurs (codes spécifiques)
+
+- **Un code métier par type d’erreur** : toujours utiliser un code explicite (ex. `IDENTIFIANTS_INVALIDES`, `EMAIL_DEJA_UTILISE`, `RESSOURCE_INTROUVABLE`), jamais un message libre ou un code HTTP seul.
+- **Source des codes** : définis dans **`application.yml`** sous `app.error-codes` (code, http-code, message), lus via **ApplicationProperties** et **BackendErrorResolver** ; plus de fichier CSV pour les codes.
+- **Réponse d’erreur** (task.md 3.6) : `{ "code", "message", "details", "correlationId", "timestamp" }` ; le `code` est le code métier (string).
+- **Exceptions** : lever `InvalidRequestException("CODE_METIER")` ou `NotFoundException("RESSOURCE_INTROUVABLE")` ; le handler utilise le resolver pour http-code et message.
+
+---
+
+## Logs & audit → Elasticsearch
+
+- **Les logs applicatifs et d’audit** ne doivent pas reposer sur un fichier CSV : ils sont envoyés vers **Elasticsearch** (ou désactivables via config).
+- **Config** : `app.logging.elastic.*` (enabled, host, index, etc.) dans **application.yml** ; utilisation uniquement si `enabled=true`.
+- **Audit** : événements sensibles (LOGIN_SUCCESS, LOGOUT, etc.) écrits en base PostgreSQL **et** indexés dans Elasticsearch quand Elastic est activé (service dédié ou adapter le flux actuel).
+- **Format** : logs structurés (JSON) pour faciliter l’ingestion Elastic ; pas de concaténation de données sensibles (mots de passe, tokens).
+
+---
+
+## Authentification & login (email + téléphone)
+
+- **Login** : accepte **email** OU **numéro de téléphone** (en plus du username si conservé), plus mot de passe (task.md : message générique en cas d’échec).
+- **Pays supportés (téléphone)** : Sénégal (+221), Mauritanie (+222), Mali (+223), Guinée Conakry (+224), Gambie (+220), Guinée-Bissau (+245), Côte d’Ivoire (+225). Les indicatifs et règles de normalisation (préfixe, format) sont définis dans **application.yml** (`app.auth.phone-country-codes` ou équivalent) et utilisés pour la recherche et la validation.
+- **Stockage** : le numéro est stocké sur l’entité utilisateur (ex. `telephone`) ; recherche par email ou téléphone (normalisé) pour le login.
+- **PARENT** : pas de connexion classique ; accès prévu plus tard par OTP (numéro).
+
+---
+
+## Rôles & création (rappel)
+
+- **UserRole** : ADMIN, CAISSIER, SURVEILLANT, ENSEIGNANT, ELEVE, PARENT
+- **Création** : Admin → caissiers, surveillants, enseignants, élèves, parents ; Caissier → élèves, parents. Contrôle d’accès par `@RolesAllowed`.
+
+---
+
+## Conventions code
+
+- **Controllers** : `@Path("/api/v1/...")` (ou `/api/admin/`, `/api/platform/` selon le contexte), `@RolesAllowed` explicite, délégation aux use cases
+- **Use cases** : interface + `*UseCaseImpl`, pas de logique dans le controller
+- **Entités** : UUID, snake_case en base, `created_at` / `updated_at` / `deleted_at` (soft delete)
+- **DTOs** : validation `@Valid`, pas d’exposition de mots de passe ou tokens en clair
+- **Sécurité** : JWT RS256, bcrypt (cost configurable dans application.yml)
+
+---
+
+## Paiement (à venir)
+
+- **Provider** : API **Payetech** (ou autre) ; configurer `app.payment.provider` et les clés/URL dans **application.yml**, pas en dur.
+- **Module paiement** : à implémenter plus tard en s’appuyant sur cette config et sur task.md (module concerné).

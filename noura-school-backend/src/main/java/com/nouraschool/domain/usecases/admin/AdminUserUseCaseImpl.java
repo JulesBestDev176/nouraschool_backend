@@ -4,11 +4,13 @@ import com.nouraschool.domain.dtos.UserCreateDto;
 import com.nouraschool.domain.dtos.UserDto;
 import com.nouraschool.domain.entities.AdministrateurEntity;
 import com.nouraschool.domain.entities.CaissierEntity;
+import com.nouraschool.domain.entities.SurveillantEntity;
 import com.nouraschool.domain.entities.UserEntity;
 import com.nouraschool.domain.enums.UserRole;
 import com.nouraschool.domain.exception.errors.InvalidRequestException;
 import com.nouraschool.domain.exception.errors.NotFoundException;
 import com.nouraschool.domain.mappers.UserMapper;
+import com.nouraschool.domain.repositories.TenantRepository;
 import com.nouraschool.domain.repositories.UserRepository;
 import com.nouraschool.domain.services.PasswordEncoder;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -24,6 +26,8 @@ public class AdminUserUseCaseImpl implements AdminUserUseCase {
 
     @Inject
     UserRepository userRepository;
+    @Inject
+    TenantRepository tenantRepository;
     @Inject
     UserMapper userMapper;
     @Inject
@@ -44,11 +48,11 @@ public class AdminUserUseCaseImpl implements AdminUserUseCase {
     @Override
     @Transactional
     public UserDto create(UserCreateDto dto) {
-        if (dto.getRole() != UserRole.ADMIN && dto.getRole() != UserRole.CAISSIER) {
-            throw new InvalidRequestException("Only ADMIN or CAISSIER can be created via this endpoint");
+        if (dto.getRole() != UserRole.ADMIN && dto.getRole() != UserRole.CAISSIER && dto.getRole() != UserRole.SURVEILLANT) {
+            throw new InvalidRequestException("Only ADMIN, CAISSIER or SURVEILLANT can be created via this endpoint");
         }
-        if (userRepository.findByUsername(dto.getUsername()) != null) throw new InvalidRequestException("USERNAME_EXISTS");
-        if (userRepository.findByUsernameOrEmail(dto.getEmail()) != null) throw new InvalidRequestException("EMAIL_EXISTS");
+        if (userRepository.findByUsername(dto.getUsername()) != null) throw new InvalidRequestException("EMAIL_DEJA_UTILISE");
+        if (userRepository.findByUsernameOrEmail(dto.getEmail()) != null) throw new InvalidRequestException("EMAIL_DEJA_UTILISE");
 
         UserEntity entity;
         if (dto.getRole() == UserRole.ADMIN) {
@@ -56,16 +60,22 @@ public class AdminUserUseCaseImpl implements AdminUserUseCase {
             fillUserFields(admin, dto);
             admin.role = UserRole.ADMIN;
             entity = userRepository.persist(admin);
-        } else {
+        } else if (dto.getRole() == UserRole.CAISSIER) {
             CaissierEntity caissier = new CaissierEntity();
             fillUserFields(caissier, dto);
             caissier.role = UserRole.CAISSIER;
             entity = userRepository.persist(caissier);
+        } else {
+            SurveillantEntity surveillant = new SurveillantEntity();
+            fillUserFields(surveillant, dto);
+            surveillant.role = UserRole.SURVEILLANT;
+            entity = userRepository.persist(surveillant);
         }
         return userMapper.toDto(entity);
     }
 
     private void fillUserFields(UserEntity entity, UserCreateDto dto) {
+        entity.tenant = tenantRepository.findDefault();
         entity.username = dto.getUsername();
         entity.email = dto.getEmail();
         entity.password = passwordEncoder.encode(dto.getPassword());
@@ -73,6 +83,7 @@ public class AdminUserUseCaseImpl implements AdminUserUseCase {
         entity.lastName = dto.getLastName();
         entity.telephone = dto.getTelephone();
         entity.adresse = dto.getAdresse();
+        entity.mustChangePassword = true;
     }
 
     @Override
@@ -86,7 +97,15 @@ public class AdminUserUseCaseImpl implements AdminUserUseCase {
         if (dto.getLastName() != null) entity.lastName = dto.getLastName();
         if (dto.getTelephone() != null) entity.telephone = dto.getTelephone();
         if (dto.getAdresse() != null) entity.adresse = dto.getAdresse();
-        if (dto.getActive() != null) entity.active = dto.getActive();
+        if (dto.getActive() != null) {
+            if (Boolean.FALSE.equals(dto.getActive()) && entity.role == UserRole.ADMIN && entity.tenant != null && Boolean.TRUE.equals(entity.active)) {
+                long adminCount = UserEntity.count("tenant.id = ?1 and role = ?2 and active = true", entity.tenant.id, UserRole.ADMIN);
+                if (adminCount <= 1) {
+                    throw new InvalidRequestException("REGLE_METIER_VIOLEE");
+                }
+            }
+            entity.active = dto.getActive();
+        }
         return userMapper.toDto(userRepository.persist(entity));
     }
 

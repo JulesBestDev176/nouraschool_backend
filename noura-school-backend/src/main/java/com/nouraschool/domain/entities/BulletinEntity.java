@@ -1,6 +1,7 @@
 package com.nouraschool.domain.entities;
 
 import jakarta.persistence.*;
+import java.util.UUID;
 
 @Entity
 @Table(name = "bulletins")
@@ -40,4 +41,12 @@ public class BulletinEntity extends AbstractEntity {
     @Column(name = "fichier_pdf_url")
     public String fichierPdfUrl;
 
+    @Column(length = 20)
+    public String statut = "BROUILLON";
+
+    @Column(name = "soumis_par")
+    public UUID soumisPar;
+
+    @Column(name = "valide_par")
+    public UUID validePar;
 }

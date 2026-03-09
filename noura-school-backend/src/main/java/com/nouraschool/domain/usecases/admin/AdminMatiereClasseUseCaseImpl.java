@@ -8,6 +8,7 @@ import com.nouraschool.domain.repositories.ClasseRepository;
 import com.nouraschool.domain.repositories.EnseignantRepository;
 import com.nouraschool.domain.repositories.MatiereClasseRepository;
 import com.nouraschool.domain.repositories.MatiereRepository;
+import com.nouraschool.runtime.tenant.TenantContext;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -29,6 +30,8 @@ public class AdminMatiereClasseUseCaseImpl implements AdminMatiereClasseUseCase 
     EnseignantRepository enseignantRepository;
     @Inject
     MatiereClasseMapper matiereClasseMapper;
+    @Inject
+    TenantContext tenantContext;
 
     @Override
     public List<MatiereClasseDto> findAll() {
@@ -46,6 +49,7 @@ public class AdminMatiereClasseUseCaseImpl implements AdminMatiereClasseUseCase 
     @Transactional
     public MatiereClasseDto create(MatiereClasseDto dto) {
         MatiereClasseEntity entity = matiereClasseMapper.toEntity(dto);
+        if (tenantContext.hasTenant()) entity.tenantId = tenantContext.getTenantId();
         if (dto.getMatiereId() != null) entity.matiere = matiereRepository.findById(dto.getMatiereId());
         if (dto.getClasseId() != null) entity.classe = classeRepository.findById(dto.getClasseId());
         if (dto.getEnseignantId() != null) entity.enseignantEntity = enseignantRepository.findById(dto.getEnseignantId());

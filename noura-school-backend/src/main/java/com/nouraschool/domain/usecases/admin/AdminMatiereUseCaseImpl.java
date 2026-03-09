@@ -5,6 +5,7 @@ import com.nouraschool.domain.entities.MatiereEntity;
 import com.nouraschool.domain.exception.errors.NotFoundException;
 import com.nouraschool.domain.mappers.MatiereMapper;
 import com.nouraschool.domain.repositories.MatiereRepository;
+import com.nouraschool.runtime.tenant.TenantContext;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -20,6 +21,8 @@ public class AdminMatiereUseCaseImpl implements AdminMatiereUseCase {
     MatiereRepository matiereRepository;
     @Inject
     MatiereMapper matiereMapper;
+    @Inject
+    TenantContext tenantContext;
 
     @Override
     public List<MatiereDto> findAll() {
@@ -37,6 +40,7 @@ public class AdminMatiereUseCaseImpl implements AdminMatiereUseCase {
     @Transactional
     public MatiereDto create(MatiereDto dto) {
         MatiereEntity entity = matiereMapper.toEntity(dto);
+        if (tenantContext.hasTenant()) entity.tenantId = tenantContext.getTenantId();
         return matiereMapper.toDto(matiereRepository.persist(entity));
     }
 

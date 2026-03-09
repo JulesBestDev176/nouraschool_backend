@@ -9,6 +9,8 @@ public interface AdminEmploiDuTempsUseCase {
 
     List<EmploiDuTempsDto> findAll();
 
+    List<EmploiDuTempsDto> findByClasseId(UUID classeId);
+
     EmploiDuTempsDto findById(UUID id);
 
     EmploiDuTempsDto create(EmploiDuTempsDto dto);

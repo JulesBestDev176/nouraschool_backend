@@ -11,6 +11,12 @@ import java.util.UUID;
 @Table(name = "paiements")
 public class PaiementEntity extends AbstractEntity {
 
+    @Column(name = "tenant_id")
+    public UUID tenantId;
+
+    @Column(name = "inscription_id")
+    public UUID inscriptionId;
+
     @ManyToOne
     @JoinColumn(name = "eleve_id", nullable = false)
     public EleveEntity eleve;
