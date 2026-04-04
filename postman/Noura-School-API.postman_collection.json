@@ -1,0 +1,316 @@
+{
+  "info": {
+    "_postman_id": "noura-school-api",
+    "name": "Noura School API",
+    "description": "Collection complète pour l'API Noura School - Tous les endpoints avec variables Postman",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{access_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:8080" },
+    { "key": "access_token", "value": "" },
+    { "key": "refresh_token", "value": "" },
+    { "key": "username", "value": "admin" },
+    { "key": "password", "value": "Admin123!" },
+    { "key": "id", "value": "" },
+    { "key": "eleveId", "value": "" },
+    { "key": "classeId", "value": "" },
+    { "key": "noteId", "value": "" },
+    { "key": "statut", "value": "EN_ATTENTE" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var json = pm.response.json();",
+                  "    pm.collectionVariables.set('access_token', json.accessToken);",
+                  "    pm.collectionVariables.set('refresh_token', json.refreshToken);",
+                  "    pm.test('Tokens enregistrés', function() {",
+                  "        pm.expect(json.accessToken).to.be.a('string');",
+                  "        pm.expect(json.refreshToken).to.be.a('string');",
+                  "    });",
+                  "}",
+                  "pm.test('Status 200', function() { pm.response.to.have.status(200); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"username\": \"{{username}}\",\n    \"password\": \"{{password}}\"\n}"
+            },
+            "url": "{{base_url}}/api/auth/login"
+          }
+        },
+        {
+          "name": "Refresh",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var json = pm.response.json();",
+                  "    pm.collectionVariables.set('access_token', json.accessToken);",
+                  "    pm.collectionVariables.set('refresh_token', json.refreshToken);",
+                  "}",
+                  "pm.test('Status 200', function() { pm.response.to.have.status(200); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"refreshToken\": \"{{refresh_token}}\"\n}"
+            },
+            "url": "{{base_url}}/api/auth/refresh"
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/auth/logout"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health",
+      "request": {
+        "auth": { "type": "noauth" },
+        "method": "GET",
+        "url": "{{base_url}}/health"
+      }
+    },
+    {
+      "name": "Admin - Users",
+      "item": [
+        { "name": "Liste users", "request": { "method": "GET", "url": "{{base_url}}/api/admin/users" } },
+        { "name": "User par ID", "request": { "method": "GET", "url": "{{base_url}}/api/admin/users/{{id}}" } },
+        { "name": "Créer user", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"username\": \"nouveau_user\",\n    \"email\": \"user@example.com\",\n    \"password\": \"password\",\n    \"role\": \"ELEVE\"\n}" }, "url": "{{base_url}}/api/admin/users" } },
+        { "name": "Modifier user", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"username\": \"user_modifie\",\n    \"email\": \"user@example.com\",\n    \"role\": \"ELEVE\"\n}" }, "url": "{{base_url}}/api/admin/users/{{id}}" } },
+        { "name": "Supprimer user", "request": { "method": "DELETE", "url": "{{base_url}}/api/admin/users/{{id}}" } }
+      ]
+    },
+    {
+      "name": "Admin - Élèves",
+      "item": [
+        { "name": "Liste élèves", "request": { "method": "GET", "url": "{{base_url}}/api/admin/eleves?page=0&size=20&sortBy=id&asc=true" } },
+        { "name": "Élève par ID", "request": { "method": "GET", "url": "{{base_url}}/api/admin/eleves/{{id}}" } },
+        { "name": "Créer élève", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"userId\": 1,\n    \"nom\": \"Dupont\",\n    \"prenom\": \"Jean\",\n    \"dateNaissance\": \"2010-05-15\",\n    \"genre\": \"MASCULIN\",\n    \"classeId\": 1\n}" }, "url": "{{base_url}}/api/admin/eleves" } },
+        { "name": "Modifier élève", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"nom\": \"Dupont\",\n    \"prenom\": \"Jean\",\n    \"dateNaissance\": \"2010-05-15\",\n    \"genre\": \"MASCULIN\",\n    \"classeId\": 1\n}" }, "url": "{{base_url}}/api/admin/eleves/{{id}}" } },
+        { "name": "Supprimer élève", "request": { "method": "DELETE", "url": "{{base_url}}/api/admin/eleves/{{id}}" } }
+      ]
+    },
+    {
+      "name": "Admin - Classes",
+      "item": [
+        { "name": "Liste classes", "request": { "method": "GET", "url": "{{base_url}}/api/admin/classes" } },
+        { "name": "Classe par ID", "request": { "method": "GET", "url": "{{base_url}}/api/admin/classes/{{id}}" } },
+        { "name": "Créer classe", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"nom\": \"6ème A\",\n    \"capacite\": 30\n}" }, "url": "{{base_url}}/api/admin/classes" } },
+        { "name": "Modifier classe", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"nom\": \"6ème A\",\n    \"capacite\": 32\n}" }, "url": "{{base_url}}/api/admin/classes/{{id}}" } },
+        { "name": "Supprimer classe", "request": { "method": "DELETE", "url": "{{base_url}}/api/admin/classes/{{id}}" } }
+      ]
+    },
+    {
+      "name": "Admin - Enseignants",
+      "item": [
+        { "name": "Liste enseignants", "request": { "method": "GET", "url": "{{base_url}}/api/admin/enseignants" } },
+        { "name": "Enseignant par ID", "request": { "method": "GET", "url": "{{base_url}}/api/admin/enseignants/{{id}}" } },
+        { "name": "Créer enseignant", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"userId\": 1,\n    \"nom\": \"Martin\",\n    \"prenom\": \"Marie\",\n    \"specialite\": \"Mathématiques\"\n}" }, "url": "{{base_url}}/api/admin/enseignants" } },
+        { "name": "Modifier enseignant", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"nom\": \"Martin\",\n    \"prenom\": \"Marie\",\n    \"specialite\": \"Mathématiques\"\n}" }, "url": "{{base_url}}/api/admin/enseignants/{{id}}" } },
+        { "name": "Supprimer enseignant", "request": { "method": "DELETE", "url": "{{base_url}}/api/admin/enseignants/{{id}}" } }
+      ]
+    },
+    {
+      "name": "Admin - Parents",
+      "item": [
+        { "name": "Liste parents", "request": { "method": "GET", "url": "{{base_url}}/api/admin/parents" } },
+        { "name": "Parent par ID", "request": { "method": "GET", "url": "{{base_url}}/api/admin/parents/{{id}}" } },
+        { "name": "Créer parent", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"userId\": 1,\n    \"nom\": \"Dupont\",\n    \"prenom\": \"Pierre\",\n    \"telephone\": \"+221771234567\",\n    \"email\": \"parent@example.com\"\n}" }, "url": "{{base_url}}/api/admin/parents" } },
+        { "name": "Modifier parent", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"nom\": \"Dupont\",\n    \"prenom\": \"Pierre\",\n    \"telephone\": \"+221771234567\",\n    \"email\": \"parent@example.com\"\n}" }, "url": "{{base_url}}/api/admin/parents/{{id}}" } },
+        { "name": "Supprimer parent", "request": { "method": "DELETE", "url": "{{base_url}}/api/admin/parents/{{id}}" } }
+      ]
+    },
+    {
+      "name": "Admin - Matières",
+      "item": [
+        { "name": "Liste matières", "request": { "method": "GET", "url": "{{base_url}}/api/admin/matieres" } },
+        { "name": "Matière par ID", "request": { "method": "GET", "url": "{{base_url}}/api/admin/matieres/{{id}}" } },
+        { "name": "Créer matière", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"nom\": \"Mathématiques\",\n    \"coefficient\": 3\n}" }, "url": "{{base_url}}/api/admin/matieres" } },
+        { "name": "Modifier matière", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"nom\": \"Mathématiques\",\n    \"coefficient\": 4\n}" }, "url": "{{base_url}}/api/admin/matieres/{{id}}" } },
+        { "name": "Supprimer matière", "request": { "method": "DELETE", "url": "{{base_url}}/api/admin/matieres/{{id}}" } }
+      ]
+    },
+    {
+      "name": "Admin - Matières-Classes",
+      "item": [
+        { "name": "Liste matières-classes", "request": { "method": "GET", "url": "{{base_url}}/api/admin/matieres-classes" } },
+        { "name": "Matière-Classe par ID", "request": { "method": "GET", "url": "{{base_url}}/api/admin/matieres-classes/{{id}}" } },
+        { "name": "Créer matière-classe", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"matiereId\": 1,\n    \"classeId\": 1,\n    \"enseignantId\": 1\n}" }, "url": "{{base_url}}/api/admin/matieres-classes" } },
+        { "name": "Modifier matière-classe", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"matiereId\": 1,\n    \"classeId\": 1,\n    \"enseignantId\": 1\n}" }, "url": "{{base_url}}/api/admin/matieres-classes/{{id}}" } },
+        { "name": "Supprimer matière-classe", "request": { "method": "DELETE", "url": "{{base_url}}/api/admin/matieres-classes/{{id}}" } }
+      ]
+    },
+    {
+      "name": "Admin - Calendrier scolaire",
+      "item": [
+        { "name": "Liste calendrier", "request": { "method": "GET", "url": "{{base_url}}/api/admin/calendrier-scolaire" } },
+        { "name": "Événement par ID", "request": { "method": "GET", "url": "{{base_url}}/api/admin/calendrier-scolaire/{{id}}" } },
+        { "name": "Créer événement", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"date\": \"2025-03-15\",\n    \"typeEvenement\": \"CONGE\",\n    \"description\": \"Jour férié\"\n}" }, "url": "{{base_url}}/api/admin/calendrier-scolaire" } },
+        { "name": "Modifier événement", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"date\": \"2025-03-15\",\n    \"typeEvenement\": \"CONGE\",\n    \"description\": \"Jour férié\"\n}" }, "url": "{{base_url}}/api/admin/calendrier-scolaire/{{id}}" } },
+        { "name": "Supprimer événement", "request": { "method": "DELETE", "url": "{{base_url}}/api/admin/calendrier-scolaire/{{id}}" } }
+      ]
+    },
+    {
+      "name": "Admin - Emplois du temps",
+      "item": [
+        { "name": "Liste emplois du temps", "request": { "method": "GET", "url": "{{base_url}}/api/admin/emplois-du-temps" } },
+        { "name": "Emploi par ID", "request": { "method": "GET", "url": "{{base_url}}/api/admin/emplois-du-temps/{{id}}" } },
+        { "name": "Créer emploi", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"matiereClasseId\": 1,\n    \"jourSemaine\": \"LUNDI\",\n    \"heureDebut\": \"08:00\",\n    \"heureFin\": \"09:00\",\n    \"salle\": \"A101\"\n}" }, "url": "{{base_url}}/api/admin/emplois-du-temps" } },
+        { "name": "Modifier emploi", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"matiereClasseId\": 1,\n    \"jourSemaine\": \"LUNDI\",\n    \"heureDebut\": \"08:00\",\n    \"heureFin\": \"09:00\",\n    \"salle\": \"A101\"\n}" }, "url": "{{base_url}}/api/admin/emplois-du-temps/{{id}}" } },
+        { "name": "Supprimer emploi", "request": { "method": "DELETE", "url": "{{base_url}}/api/admin/emplois-du-temps/{{id}}" } }
+      ]
+    },
+    {
+      "name": "Admin - Bulletins",
+      "item": [
+        { "name": "Liste bulletins", "request": { "method": "GET", "url": "{{base_url}}/api/admin/bulletins?page=0&size=20&sortBy=id&asc=true" } },
+        { "name": "Bulletin par ID", "request": { "method": "GET", "url": "{{base_url}}/api/admin/bulletins/{{id}}" } },
+        { "name": "Télécharger un bulletin (PDF)", "request": { "method": "GET", "url": "{{base_url}}/api/admin/bulletins/{{id}}/download?format=pdf" } },
+        { "name": "Télécharger un bulletin (Word)", "request": { "method": "GET", "url": "{{base_url}}/api/admin/bulletins/{{id}}/download?format=word" } },
+        { "name": "Télécharger un bulletin (Excel)", "request": { "method": "GET", "url": "{{base_url}}/api/admin/bulletins/{{id}}/download?format=excel" } },
+        { "name": "Télécharger bulletins par classe (ZIP)", "request": { "method": "GET", "url": "{{base_url}}/api/admin/bulletins/download/by-classe?classeId={{classeId}}&anneeScolaire=2024-2025&trimestre=Trimestre 1" } },
+        { "name": "Télécharger tous les bulletins école (ZIP)", "request": { "method": "GET", "url": "{{base_url}}/api/admin/bulletins/download/all?anneeScolaire=2024-2025&trimestre=Trimestre 1" } },
+        { "name": "Créer bulletin", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"eleveId\": \"{{eleveId}}\",\n    \"trimestre\": \"Trimestre 1\",\n    \"anneeScolaire\": \"2024-2025\",\n    \"moyenne\": 12.5,\n    \"moyenneClasse\": 11.2,\n    \"rang\": 3,\n    \"totalEleves\": 25,\n    \"appreciation\": \"Bon trimestre.\",\n    \"nombreAbsences\": 0,\n    \"nombreRetards\": 1\n}" }, "url": "{{base_url}}/api/admin/bulletins" } },
+        { "name": "Modifier bulletin", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"eleveId\": \"{{eleveId}}\",\n    \"trimestre\": \"Trimestre 1\",\n    \"anneeScolaire\": \"2024-2025\",\n    \"moyenne\": 13.0,\n    \"moyenneClasse\": 11.2,\n    \"rang\": 2,\n    \"totalEleves\": 25,\n    \"appreciation\": \"Très bon trimestre.\",\n    \"nombreAbsences\": 0,\n    \"nombreRetards\": 0\n}" }, "url": "{{base_url}}/api/admin/bulletins/{{id}}" } },
+        { "name": "Supprimer bulletin", "request": { "method": "DELETE", "url": "{{base_url}}/api/admin/bulletins/{{id}}" } }
+      ]
+    },
+    {
+      "name": "Admin - Rapports",
+      "item": [
+        { "name": "Rapport trimestre (PDF)", "request": { "method": "GET", "url": "{{base_url}}/api/admin/reports/rapport-trimestre?anneeScolaire=2024-2025&trimestre=Trimestre 1" } }
+      ]
+    },
+    {
+      "name": "Admin - Notes",
+      "item": [
+        { "name": "Liste notes", "request": { "method": "GET", "url": "{{base_url}}/api/admin/notes" } },
+        { "name": "Note par ID", "request": { "method": "GET", "url": "{{base_url}}/api/admin/notes/{{id}}" } },
+        { "name": "Créer note", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"eleveId\": 1,\n    \"matiereClasseId\": 1,\n    \"valeur\": 14.5,\n    \"typeEvaluation\": \"CONTROLE\",\n    \"periode\": \"Trimestre 1\"\n}" }, "url": "{{base_url}}/api/admin/notes" } },
+        { "name": "Modifier note", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"eleveId\": 1,\n    \"matiereClasseId\": 1,\n    \"valeur\": 15.0,\n    \"typeEvaluation\": \"CONTROLE\",\n    \"periode\": \"Trimestre 1\"\n}" }, "url": "{{base_url}}/api/admin/notes/{{id}}" } },
+        { "name": "Supprimer note", "request": { "method": "DELETE", "url": "{{base_url}}/api/admin/notes/{{id}}" } }
+      ]
+    },
+    {
+      "name": "Admin - Absences élèves",
+      "item": [
+        { "name": "Liste absences", "request": { "method": "GET", "url": "{{base_url}}/api/admin/absences-eleves" } },
+        { "name": "Absence par ID", "request": { "method": "GET", "url": "{{base_url}}/api/admin/absences-eleves/{{id}}" } },
+        { "name": "Créer absence", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"eleveId\": 1,\n    \"date\": \"2025-02-19\",\n    \"typeAbsence\": \"JUSTIFIEE\",\n    \"motif\": \"Maladie\"\n}" }, "url": "{{base_url}}/api/admin/absences-eleves" } },
+        { "name": "Modifier absence", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"eleveId\": 1,\n    \"date\": \"2025-02-19\",\n    \"typeAbsence\": \"JUSTIFIEE\",\n    \"motif\": \"Maladie\"\n}" }, "url": "{{base_url}}/api/admin/absences-eleves/{{id}}" } },
+        { "name": "Supprimer absence", "request": { "method": "DELETE", "url": "{{base_url}}/api/admin/absences-eleves/{{id}}" } }
+      ]
+    },
+    {
+      "name": "Admin - Réclamations",
+      "item": [
+        { "name": "Liste réclamations", "request": { "method": "GET", "url": "{{base_url}}/api/admin/reclamations" } },
+        { "name": "Réclamation par ID", "request": { "method": "GET", "url": "{{base_url}}/api/admin/reclamations/{{id}}" } },
+        { "name": "Créer réclamation", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"eleveId\": 1,\n    \"typeReclamation\": \"NOTE\",\n    \"sujet\": \"Contestation note\",\n    \"description\": \"Détail de la réclamation\"\n}" }, "url": "{{base_url}}/api/admin/reclamations" } },
+        { "name": "Modifier réclamation", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"eleveId\": 1,\n    \"typeReclamation\": \"NOTE\",\n    \"sujet\": \"Contestation note\",\n    \"description\": \"Détail\",\n    \"statut\": \"TRAITEE\"\n}" }, "url": "{{base_url}}/api/admin/reclamations/{{id}}" } },
+        { "name": "Supprimer réclamation", "request": { "method": "DELETE", "url": "{{base_url}}/api/admin/reclamations/{{id}}" } }
+      ]
+    },
+    {
+      "name": "Admin - Paiements",
+      "item": [
+        { "name": "Liste paiements", "request": { "method": "GET", "url": "{{base_url}}/api/admin/paiements" } },
+        { "name": "Paiement par ID", "request": { "method": "GET", "url": "{{base_url}}/api/admin/paiements/{{id}}" } },
+        { "name": "Créer paiement", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"eleveId\": 1,\n    \"montant\": 150000,\n    \"typePaiement\": \"SCOLARITE\",\n    \"modePaiement\": \"ESPECES\",\n    \"datePaiement\": \"2025-02-19\"\n}" }, "url": "{{base_url}}/api/admin/paiements" } },
+        { "name": "Modifier paiement", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"eleveId\": 1,\n    \"montant\": 150000,\n    \"typePaiement\": \"SCOLARITE\",\n    \"modePaiement\": \"ESPECES\",\n    \"statut\": \"VALIDE\"\n}" }, "url": "{{base_url}}/api/admin/paiements/{{id}}" } },
+        { "name": "Supprimer paiement", "request": { "method": "DELETE", "url": "{{base_url}}/api/admin/paiements/{{id}}" } }
+      ]
+    },
+    {
+      "name": "Caisse",
+      "item": [
+        { "name": "Liste paiements", "request": { "method": "GET", "url": "{{base_url}}/api/caisse/paiements" } },
+        { "name": "Paiements par statut", "request": { "method": "GET", "url": "{{base_url}}/api/caisse/paiements/statut/{{statut}}" } },
+        { "name": "Historique paiements", "request": { "method": "GET", "url": "{{base_url}}/api/caisse/paiements/historique?debut=2025-01-01T00:00:00&fin=2025-02-19T23:59:59" } },
+        { "name": "Consulter paiement", "request": { "method": "GET", "url": "{{base_url}}/api/caisse/paiements/{{id}}" } },
+        { "name": "Valider paiement", "request": { "method": "POST", "url": "{{base_url}}/api/caisse/paiements/{{id}}/valider" } }
+      ]
+    },
+    {
+      "name": "Enseignant",
+      "item": [
+        { "name": "Profil", "request": { "method": "GET", "url": "{{base_url}}/api/enseignant/profil" } },
+        { "name": "Classes et matières", "request": { "method": "GET", "url": "{{base_url}}/api/enseignant/classes-matieres" } },
+        { "name": "Emploi du temps", "request": { "method": "GET", "url": "{{base_url}}/api/enseignant/emploi-du-temps" } },
+        { "name": "Liste notes", "request": { "method": "GET", "url": "{{base_url}}/api/enseignant/notes" } },
+        { "name": "Créer note", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"eleveId\": 1,\n    \"matiereClasseId\": 1,\n    \"valeur\": 14.5,\n    \"typeEvaluation\": \"CONTROLE\",\n    \"periode\": \"Trimestre 1\"\n}" }, "url": "{{base_url}}/api/enseignant/notes" } },
+        { "name": "Modifier note", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"eleveId\": 1,\n    \"matiereClasseId\": 1,\n    \"valeur\": 15.0,\n    \"typeEvaluation\": \"CONTROLE\",\n    \"periode\": \"Trimestre 1\"\n}" }, "url": "{{base_url}}/api/enseignant/notes/{{noteId}}" } },
+        { "name": "Bulletins", "request": { "method": "GET", "url": "{{base_url}}/api/enseignant/bulletins" } },
+        { "name": "Déclarer absence", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"date\": \"2025-02-19\",\n    \"typeAbsence\": \"JUSTIFIEE\",\n    \"motif\": \"Formation\"\n}" }, "url": "{{base_url}}/api/enseignant/absences" } },
+        { "name": "Réclamations", "request": { "method": "GET", "url": "{{base_url}}/api/enseignant/reclamations" } }
+      ]
+    },
+    {
+      "name": "Élève",
+      "item": [
+        { "name": "Profil", "request": { "method": "GET", "url": "{{base_url}}/api/eleve/profil" } },
+        { "name": "Notes", "request": { "method": "GET", "url": "{{base_url}}/api/eleve/notes" } },
+        { "name": "Bulletins", "request": { "method": "GET", "url": "{{base_url}}/api/eleve/bulletins" } },
+        { "name": "Emploi du temps", "request": { "method": "GET", "url": "{{base_url}}/api/eleve/emploi-du-temps" } },
+        { "name": "Absences", "request": { "method": "GET", "url": "{{base_url}}/api/eleve/absences" } },
+        { "name": "Créer réclamation", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"typeReclamation\": \"NOTE\",\n    \"sujet\": \"Contestation\",\n    \"description\": \"Détail\"\n}" }, "url": "{{base_url}}/api/eleve/reclamations" } },
+        { "name": "Notifications", "request": { "method": "GET", "url": "{{base_url}}/api/eleve/notifications" } }
+      ]
+    },
+    {
+      "name": "Parent",
+      "item": [
+        { "name": "Profil", "request": { "method": "GET", "url": "{{base_url}}/api/parent/profil" } },
+        { "name": "Liste enfants", "request": { "method": "GET", "url": "{{base_url}}/api/parent/enfants" } },
+        { "name": "Profil enfant", "request": { "method": "GET", "url": "{{base_url}}/api/parent/enfants/{{eleveId}}/profil" } },
+        { "name": "Notes enfant", "request": { "method": "GET", "url": "{{base_url}}/api/parent/enfants/{{eleveId}}/notes" } },
+        { "name": "Bulletins enfant", "request": { "method": "GET", "url": "{{base_url}}/api/parent/enfants/{{eleveId}}/bulletins" } },
+        { "name": "Absences enfant", "request": { "method": "GET", "url": "{{base_url}}/api/parent/enfants/{{eleveId}}/absences" } },
+        { "name": "Emploi du temps enfant", "request": { "method": "GET", "url": "{{base_url}}/api/parent/enfants/{{eleveId}}/emploi-du-temps" } },
+        { "name": "Paiements", "request": { "method": "GET", "url": "{{base_url}}/api/parent/paiements" } },
+        { "name": "Notifications", "request": { "method": "GET", "url": "{{base_url}}/api/parent/notifications" } }
+      ]
+    }
+  ]
+}

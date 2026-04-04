@@ -1,0 +1,221 @@
+quarkus:
+  log:
+    console:
+      format: "[%C][%M] %s%e%n"
+  http:
+    cors:
+      enabled: true
+      origins: ${CORS_ORIGINS:http://localhost:4200,http://127.0.0.1:4200}
+      methods: GET,POST,PUT,PATCH,DELETE,OPTIONS
+      headers: accept,authorization,content-type,x-tenant-id
+      access-control-allow-credentials: true
+    auth:
+      permission:
+        preflight:
+          paths: /api/*
+          methods: OPTIONS
+          policy: permit
+        login:
+          paths: /api/v1/auth/login
+          methods: POST
+          policy: permit
+        refresh:
+          paths: /api/v1/auth/refresh
+          methods: POST
+          policy: permit
+        forgot-password:
+          paths: /api/v1/auth/forgot-password
+          methods: POST
+          policy: permit
+        reset-password:
+          paths: /api/v1/auth/reset-password
+          methods: POST
+          policy: permit
+        api-protected:
+          paths: /api/*
+          methods: GET,POST,PUT,DELETE,PATCH
+          policy: authenticated
+        swagger:
+          paths: /q/swagger-ui
+          methods: GET
+          policy: permit
+        openapi:
+          paths: /q/openapi
+          methods: GET
+          policy: permit
+        health:
+          paths: /health
+          methods: GET
+          policy: permit
+    # Headers de sécurité HTTP (task.md)
+    header:
+      "Strict-Transport-Security":
+        value: "max-age=31536000; includeSubDomains; preload"
+      "X-Frame-Options":
+        value: "DENY"
+      "X-Content-Type-Options":
+        value: "nosniff"
+      "Referrer-Policy":
+        value: "strict-origin-when-cross-origin"
+      "Content-Security-Policy":
+        value: "default-src 'self'; frame-ancestors 'none'"
+      "Permissions-Policy":
+        value: "geolocation=(), microphone=(), camera=()"
+  native:
+    resources:
+      includes: publicKey.pem,privateKey.pem
+  datasource:
+    db-kind: postgresql
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:Passer@1}
+    devservices:
+      enabled: true
+    jdbc:
+      url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:noura_school_db}
+      max-size: 20
+      min-size: 5
+      initial-size: 5
+      acquisition-timeout: 5
+      idle-removal-interval: 5M
+      max-lifetime: 30M
+      validation-query-sql: SELECT 1
+  hibernate-orm:
+    schema-management:
+      strategy: ${HIBERNATE_SCHEMA_STRATEGY:update}
+    mapping:
+      format:
+        global: ignore
+    physical-naming-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
+  jpastreamer:
+    persistence-unit: default
+  flyway:
+    migrate-at-start: true
+  redis:
+    hosts: redis://${REDIS_HOST:localhost}:${REDIS_PORT:6379}
+    password: ${REDIS_PASSWORD:}
+    devservices:
+      enabled: true
+  # S3 client (Quarkiverse) — bucket via app.storage.bucket
+  s3:
+    aws:
+      region: ${AWS_REGION:us-east-1}
+      credentials:
+        type: ${AWS_CREDENTIALS_TYPE:default}
+        static-provider:
+          access-key-id: ${AWS_ACCESS_KEY_ID:}
+          secret-access-key: ${AWS_SECRET_ACCESS_KEY:}
+    endpoint-override: ${S3_ENDPOINT_OVERRIDE:}
+    devservices:
+      enabled: true
+      buckets: noura-school-files
+
+mp:
+  jwt:
+    verify:
+      publickey:
+        location: classpath:publicKey.pem
+      issuer: ${JWT_ISSUER:https://noura-school.com}
+      audiences: ${JWT_AUDIENCE:noura-school-api}
+      clock:
+        skew: 60
+
+app:
+  jwt:
+    issuer: ${JWT_ISSUER:https://noura-school.com}
+    audience: ${JWT_AUDIENCE:noura-school-api}
+    access-token-lifespan: ${JWT_ACCESS_TOKEN_LIFESPAN:900}
+  security:
+    jwt-validation-enabled: true
+    clock-skew-seconds: 60
+  # Bcrypt (task.md)
+  bcrypt:
+    cost: 12
+  # Login : email ou numéro de téléphone (Sénégal, Mauritanie, Mali, Guinée, Gambie, Bissau, Côte d'Ivoire)
+  auth:
+    phone-country-codes: "+221,+222,+223,+224,+220,+245,+225"
+    login-identifiers: email,phone
+    lockout:
+      max-attempts: 5
+      ttl-seconds: 600   # 10 min
+    reset-password:
+      token-ttl-seconds: 3600   # 1 h
+    rate-limit:
+      login-per-ip: 5
+      login-window-seconds: 600   # 10 min
+      forgot-per-email: 3
+      forgot-window-seconds: 900   # 15 min
+  # Codes d'erreur métier (remplace le CSV) — gestion des erreurs avec codes spécifiques
+  error-codes:
+    - code: IDENTIFIANTS_INVALIDES
+      http-code: 401
+      message: "Identifiants invalides"
+    - code: COMPTE_VERROUILLE
+      http-code: 423
+      message: "Compte temporairement verrouillé"
+    - code: TOKEN_EXPIRE
+      http-code: 401
+      message: "Token expiré"
+    - code: ACCES_REFUSE
+      http-code: 403
+      message: "Accès refusé"
+    - code: RESSOURCE_INTROUVABLE
+      http-code: 404
+      message: "Ressource introuvable"
+    - code: EMAIL_DEJA_UTILISE
+      http-code: 409
+      message: "Cet email est déjà utilisé"
+    - code: VALIDATION_ECHOUEE
+      http-code: 400
+      message: "Contraintes de validation non respectées"
+    - code: REGLE_METIER_VIOLEE
+      http-code: 422
+      message: "Règle métier non respectée"
+    - code: TENANT_INACTIF
+      http-code: 403
+      message: "Établissement suspendu"
+    - code: OTP_INVALIDE
+      http-code: 401
+      message: "Code OTP incorrect ou expiré"
+    - code: ERREUR_INTERNE
+      http-code: 500
+      message: "Une erreur inattendue s'est produite"
+    - code: USER_INACTIVE
+      http-code: 403
+      message: "Compte inactif"
+    - code: PARENT_LOGIN_DISABLED
+      http-code: 403
+      message: "Connexion parent désactivée (accès OTP uniquement)"
+    - code: REFRESH_TOKEN_INVALID
+      http-code: 401
+      message: "Token de rafraîchissement invalide ou révoqué"
+    - code: REFRESH_TOKEN_EXPIRED
+      http-code: 401
+      message: "Token de rafraîchissement expiré"
+    - code: TOO_MANY_REQUESTS
+      http-code: 429
+      message: "Trop de tentatives, réessayez plus tard"
+  # Logs / audit → Elasticsearch (au lieu de fichier CSV)
+  logging:
+    elastic:
+      enabled: ${ELASTIC_LOGGING_ENABLED:false}
+      host: ${ELASTIC_HOST:localhost}
+      port: ${ELASTIC_PORT:9200}
+      index: ${ELASTIC_INDEX:noura-audit}
+  # Paiement : API Payetech (intégration plus tard)
+  payment:
+    provider: payetech
+  # Stockage S3 (documents, bulletins) — URLs pré-signées 15 min (task.md)
+  storage:
+    bucket: ${S3_BUCKET:noura-school-files}
+    presign-expiration-minutes: 15
+
+smallrye:
+  jwt:
+    sign:
+      key:
+        location: classpath:privateKey.pem
+        algorithm: RS256
+    new-token:
+      lifespan: ${JWT_ACCESS_TOKEN_LIFESPAN:900}
+      issuer: ${JWT_ISSUER:https://noura-school.com}
+      audience: ${JWT_AUDIENCE:noura-school-api}

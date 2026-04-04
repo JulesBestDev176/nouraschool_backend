@@ -1,0 +1,98 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: noura-school-db
+    environment:
+      POSTGRES_USER: ${DB_USERNAME:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: ${DB_NAME:-noura_school}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-postgres} -d ${DB_NAME:-noura_school}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: noura-school-redis
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  backend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: noura-school-backend
+    ports:
+      - "8080:8080"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-noura_school}
+      DB_USERNAME: ${DB_USERNAME:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      JWT_ISSUER: ${JWT_ISSUER:-https://noura-school.com}
+      JWT_AUDIENCE: ${JWT_AUDIENCE:-noura-school-api}
+      QUARKUS_DEV_SERVICES_ENABLED: "false"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  backend-dev:
+    image: eclipse-temurin:21-jdk-alpine
+    container_name: noura-school-backend-dev
+    profiles: ["dev"]
+    working_dir: /workspace
+    command:
+      - sh
+      - -c
+      - >
+        sed -i 's/\x0D$//' mvnw &&
+        chmod +x mvnw &&
+        ./mvnw quarkus:dev
+        -Dquarkus.http.host=0.0.0.0
+        -Dquarkus.test.continuous-testing=disabled
+        -Dmaven.test.skip=true
+    ports:
+      - "8080:8080"
+      - "5005:5005"
+    environment:
+      QUARKUS_PROFILE: dev
+      QUARKUS_DEV_SERVICES_ENABLED: "false"
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-noura_school}
+      DB_USERNAME: ${DB_USERNAME:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      JWT_ISSUER: ${JWT_ISSUER:-https://noura-school.com}
+      JWT_AUDIENCE: ${JWT_AUDIENCE:-noura-school-api}
+    volumes:
+      - ..:/workspace
+      - m2_cache:/root/.m2
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+  redis_data:
+  m2_cache:
