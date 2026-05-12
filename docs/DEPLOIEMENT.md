@@ -142,7 +142,7 @@ Dans le projet Coolify :
 
 1. Cliquer sur **New Resource**.
 2. Choisir **Database** puis **PostgreSQL**.
-3. Utiliser PostgreSQL `16`.
+3. Utiliser PostgreSQL `16` (le déploiement testé utilise PostgreSQL `16.13`).
 4. Nommer la ressource, par exemple :
 
 ```text
@@ -169,6 +169,36 @@ DB_PORT=5432
 DB_NAME=noura_school_db
 DB_USERNAME=<user-postgres>
 DB_PASSWORD=<password-postgres>
+```
+
+Attention : ne pas coller l'URL complète PostgreSQL dans `DB_HOST`.
+
+Le backend construit déjà l'URL JDBC avec :
+
+```text
+jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+```
+
+Donc les variables doivent être séparées :
+
+```env
+DB_HOST=187.124.37.18
+DB_PORT=5434
+DB_NAME=postgres
+DB_USERNAME=postgres
+DB_PASSWORD=<mot-de-passe>
+```
+
+Ne pas mettre :
+
+```env
+DB_HOST=postgres://postgres:<password>@187.124.37.18:5434/postgres
+```
+
+Sinon Quarkus produit une URL invalide du type :
+
+```text
+jdbc:postgresql://postgres://postgres:<password>@187.124.37.18:5434/postgres:5434/postgres
 ```
 
 Important : ne pas exposer PostgreSQL publiquement sauf besoin temporaire très contrôlé.
@@ -253,10 +283,34 @@ develop
 
 ```text
 Build Pack: Dockerfile
-Base directory / Build context: .
+Base directory / Build context: . ou vide
 Dockerfile location: docker/Dockerfile
 Port: 8080
 ```
+
+Très important :
+
+- Le **Base directory / Build context** doit pointer vers la racine du dépôt, là où se trouvent `pom.xml`, `.mvn`, `mvnw` et `src`.
+- Ne pas mettre `docker` comme base directory.
+- `docker/Dockerfile` doit être seulement le chemin du Dockerfile.
+- Si Coolify affiche un champ séparé **Base Directory**, laisser vide ou mettre `/`.
+- Si Coolify affiche un champ séparé **Dockerfile Location**, mettre `docker/Dockerfile`.
+
+Le build Docker doit recevoir le dépôt complet comme contexte. Dans les logs, une ligne saine doit transférer plus que quelques octets :
+
+```text
+[internal] load build context
+# transferring context: ...kB / ...MB
+```
+
+Si tu vois ceci :
+
+```text
+[internal] load build context
+# transferring context: 2B done
+```
+
+alors Coolify ne build pas depuis la racine du dépôt. Il faut corriger le **Base directory / Build context**.
 
 7. Ajouter le domaine :
 
@@ -545,6 +599,62 @@ curl https://api-dev.noura-school.com/q/health/ready
 3. Coolify a accès à Internet pour Maven Central.
 4. La branche configurée est bien `develop`.
 
+#### Le build Coolify échoue avec `pom.xml not found`, `.mvn not found` ou `src not found`
+
+Exemple de log :
+
+```text
+[internal] load build context
+# transferring context: 2B done
+COPY pom.xml mvnw mvnw.cmd ./
+ERROR: "/pom.xml": not found
+COPY .mvn ./.mvn
+ERROR: "/.mvn": not found
+COPY src ./src
+ERROR: "/src": not found
+```
+
+Cause : Coolify utilise le mauvais contexte Docker, souvent parce que **Base Directory** est réglé sur `docker`.
+
+Correction dans Coolify :
+
+```text
+Base Directory: vide ou /
+Build context: .
+Dockerfile Location: docker/Dockerfile
+Port: 8080
+```
+
+Après correction, relancer **Deploy**. Les warnings BuildKit du type `SecretsUsedInArgOrEnv` ne sont pas la cause de cette erreur; l'erreur bloquante est le contexte Docker vide.
+
+#### Le build Coolify échoue avec `failed to read dockerfile: .../docker: is a directory`
+
+Exemple de log :
+
+```text
+[internal] load build definition from docker
+ERROR: failed to read dockerfile: read .../docker: is a directory
+```
+
+Cause : le champ Dockerfile pointe vers le dossier `docker` au lieu du fichier `docker/Dockerfile`.
+
+Correction dans Coolify :
+
+```text
+Base Directory: vide ou /
+Build context: .
+Dockerfile Location: docker/Dockerfile
+Port: 8080
+```
+
+Ne pas mettre :
+
+```text
+Dockerfile Location: docker
+```
+
+`docker` est un dossier. Le fichier réel est `docker/Dockerfile`.
+
 #### L'application démarre mais la readiness est DOWN
 
 À vérifier :
@@ -554,6 +664,47 @@ curl https://api-dev.noura-school.com/q/health/ready
 3. La connexion Redis.
 4. La valeur de `ELASTIC_LOGGING_ENABLED`. Elle doit rester `false` si aucun Elasticsearch n'est configuré.
 5. Les variables SMTP si l'erreur arrive pendant l'envoi d'un email.
+
+#### Erreur PostgreSQL `JDBC URL contains too many / characters`
+
+Exemple :
+
+```text
+Unable to parse URL jdbc:postgresql://postgres://postgres:<password>@187.124.37.18:5434/postgres:5434/postgres
+JDBC URL contains too many / characters
+```
+
+Cause : une URL PostgreSQL complète a été mise dans `DB_HOST`.
+
+Correction :
+
+```env
+DB_HOST=187.124.37.18
+DB_PORT=5434
+DB_NAME=postgres
+DB_USERNAME=postgres
+DB_PASSWORD=<mot-de-passe>
+```
+
+Si la base PostgreSQL est une ressource Coolify dans le même projet, préférer l'host interne Coolify et le port interne :
+
+```env
+DB_HOST=<nom-interne-du-service-postgres>
+DB_PORT=5432
+DB_NAME=<database>
+DB_USERNAME=<user>
+DB_PASSWORD=<password>
+```
+
+Les warnings suivants ne bloquent pas le démarrage :
+
+```text
+Unrecognized configuration key "quarkus.jpastreamer.persistence-unit"
+Unrecognized configuration key "quarkus.smallrye-openapi.ui-always-include"
+Unrecognized configuration key "quarkus.log.console.json"
+```
+
+Le vrai blocage est l'URL PostgreSQL invalide.
 
 #### La CI GitHub passe mais Coolify ne déploie pas
 
@@ -593,6 +744,24 @@ CORS_ORIGINS=https://dev.noura-school.com
 2. L'ordre des versions `V1`, `V2`, etc.
 3. L'état de la table `flyway_schema_history`.
 4. Que `HIBERNATE_SCHEMA_STRATEGY=validate` est bien défini pour éviter les modifications automatiques concurrentes.
+
+#### Erreur Hibernate `created_at not-null in database, but nullable in model`
+
+Exemple :
+
+```text
+Schema validation: column defined as not-null in the database, but nullable in model - [created_at] in table [appel]
+```
+
+Cause : une ancienne migration a créé certaines colonnes d'audit V17 avec une contrainte différente du modèle `AbstractEntity`.
+
+Correction incluse dans le projet :
+
+```text
+V18__align_appel_audit_columns.sql
+```
+
+Cette migration aligne `cahier_texte`, `appel` et `appel_ligne` avec le modèle Hibernate. Après push / redeploy, Flyway doit passer de la version `17` à `18`.
 
 ### 16. Checklist finale
 
