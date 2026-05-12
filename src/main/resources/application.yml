@@ -5,7 +5,7 @@ quarkus:
   http:
     cors:
       enabled: true
-      origins: ${CORS_ORIGINS:http://localhost:4200,http://127.0.0.1:4200}
+      origins: ${CORS_ORIGINS:http://localhost:4200,http://localhost:4201,http://127.0.0.1:4200,http://127.0.0.1:4201}
       methods: GET,POST,PUT,PATCH,DELETE,OPTIONS
       headers: accept,authorization,content-type,x-tenant-id
       access-control-allow-credentials: true
