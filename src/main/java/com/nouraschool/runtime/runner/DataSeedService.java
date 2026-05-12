@@ -39,7 +39,6 @@ public class DataSeedService {
 
     @Transactional
     public void seedAdminIfAbsent() {
-        seedPlatformAdminIfAbsent();
         if (userRepository.findByUsername(DEFAULT_ADMIN_USERNAME) != null) {
             LOG.debugf("Admin user '%s' already exists, skipping seed.", DEFAULT_ADMIN_USERNAME);
             return;
@@ -61,12 +60,12 @@ public class DataSeedService {
         LOG.infof("Seed: admin user created (username=%s). Change password in production.", DEFAULT_ADMIN_USERNAME);
     }
 
-    private void seedPlatformAdminIfAbsent() {
+    @Transactional
+    public void seedPlatformAdminIfAbsent() {
         if (plateformeUtilisateurRepository.findByEmail(DEFAULT_PLATFORM_EMAIL).isPresent()) {
             LOG.debugf("Platform admin '%s' already exists, skipping seed.", DEFAULT_PLATFORM_EMAIL);
             return;
         }
-
         PlateformeUtilisateurEntity platformAdmin = new PlateformeUtilisateurEntity();
         platformAdmin.nom = "Platform";
         platformAdmin.prenom = "Admin";

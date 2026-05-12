@@ -23,6 +23,7 @@ public class DataSeedRunner {
 
     void onStart(@Observes StartupEvent event) {
         LOG.infov("Data seed startup step started profile={0}", profile);
+        dataSeedService.seedPlatformAdminIfAbsent();
         dataSeedService.seedAdminIfAbsent();
         if ("dev".equals(profile)) {
             LOG.info("Development profile detected; checking test data seed");
