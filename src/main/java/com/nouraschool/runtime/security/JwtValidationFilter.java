@@ -12,6 +12,7 @@ import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.Provider;
+import org.jboss.logging.Logger;
 
 import java.io.IOException;
 import java.util.List;
@@ -20,6 +21,7 @@ import java.util.List;
 @Priority(Priorities.AUTHENTICATION)
 public class JwtValidationFilter implements ContainerRequestFilter {
 
+    private static final Logger LOG = Logger.getLogger(JwtValidationFilter.class);
     private static final String BEARER_PREFIX = "Bearer ";
     private static final List<String> PUBLIC_PATHS = List.of(
             Constants.LOGIN_PATH,
@@ -52,6 +54,9 @@ public class JwtValidationFilter implements ContainerRequestFilter {
 
         String authHeader = requestContext.getHeaderString(HttpHeaders.AUTHORIZATION);
         if (authHeader == null || !authHeader.startsWith(BEARER_PREFIX)) {
+            LOG.warnv("JWT rejected reason=MISSING_TOKEN method={0} path={1}",
+                    requestContext.getMethod(),
+                    normalizedPath);
             requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED)
                     .type(MediaType.APPLICATION_JSON)
                     .entity(new ErrorResponse("MISSING_TOKEN", "Token JWT requis"))
@@ -61,6 +66,9 @@ public class JwtValidationFilter implements ContainerRequestFilter {
 
         String token = authHeader.substring(BEARER_PREFIX.length()).trim();
         if (!jwtService.isValid(token)) {
+            LOG.warnv("JWT rejected reason=INVALID_TOKEN method={0} path={1}",
+                    requestContext.getMethod(),
+                    normalizedPath);
             requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED)
                     .type(MediaType.APPLICATION_JSON)
                     .entity(new ErrorResponse("INVALID_TOKEN", "Token JWT invalide ou expiré"))

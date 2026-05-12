@@ -12,6 +12,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.Provider;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.jboss.logging.Logger;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -27,6 +28,7 @@ import java.util.UUID;
 @Priority(Priorities.AUTHENTICATION - 200)
 public class AuthRateLimitFilter implements ContainerRequestFilter {
 
+    private static final Logger LOG = Logger.getLogger(AuthRateLimitFilter.class);
     private static final String REDIS_KEY_LOGIN = "auth:ratelimit:login:";
 
     @Inject
@@ -53,10 +55,21 @@ public class AuthRateLimitFilter implements ContainerRequestFilter {
         String key = REDIS_KEY_LOGIN + sanitizeIp(ip);
         int count = getCount(key);
         if (count >= loginPerIp) {
+            LOG.warnv("Auth rate limit rejected path={0} ip={1} count={2} limit={3} correlationId={4}",
+                    path,
+                    ip,
+                    count,
+                    loginPerIp,
+                    correlationContext != null ? correlationContext.getCorrelationId() : null);
             requestContext.abortWith(build429Response());
             return;
         }
         incrementCount(key);
+        LOG.debugv("Auth rate limit counted path={0} ip={1} count={2} limit={3}",
+                path,
+                ip,
+                count + 1,
+                loginPerIp);
     }
 
     private String resolveClientIp(ContainerRequestContext requestContext) {

@@ -27,6 +27,7 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.core.SecurityContext;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.jboss.logging.Logger;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -41,6 +42,7 @@ import java.util.UUID;
 @Timed
 public class AuthServiceImpl implements AuthService {
 
+    private static final Logger LOG = Logger.getLogger(AuthServiceImpl.class);
     private static final int REFRESH_TOKEN_DAYS = 7;
     private static final String REDIS_KEY_LOCKOUT = "auth:lockout:";
     private static final String REDIS_KEY_RESET = "auth:reset:";
@@ -102,29 +104,53 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public LoginResponse login(LoginRequest request) {
+        String normalizedLogin = normalizeLogin(request.getLogin());
         String lockoutKey = REDIS_KEY_LOCKOUT + normalizeLockoutKey(request.getLogin());
         int attempts = getLockoutAttempts(lockoutKey);
+        LOG.infov("Login attempt received login={0} lockoutAttempts={1}", maskLogin(normalizedLogin), attempts);
         if (attempts >= lockoutMaxAttempts) {
+            LOG.warnv("Login rejected reason=COMPTE_VERROUILLE login={0} attempts={1}", maskLogin(normalizedLogin), attempts);
             throw new InvalidRequestException("COMPTE_VERROUILLE");
         }
         checkExponentialDelay(lockoutKey, attempts);
 
         UserEntity user = userRepository.findByUsernameOrEmailOrPhone(request.getLogin());
         if (user == null) {
-            return loginPlatformUser(request, lockoutKey);
+            return loginPlatformUser(request, lockoutKey, normalizedLogin);
         }
         if (!user.active) {
+            LOG.warnv("Tenant login rejected reason=USER_INACTIVE userId={0} login={1} role={2}",
+                    user.id,
+                    maskLogin(normalizedLogin),
+                    user.role);
             throw new InvalidRequestException("USER_INACTIVE");
         }
         if (user.tenant != null && !Boolean.TRUE.equals(user.tenant.actif)) {
+            LOG.warnv("Tenant login rejected reason=TENANT_INACTIF userId={0} tenantId={1} login={2}",
+                    user.id,
+                    user.tenant.id,
+                    maskLogin(normalizedLogin));
             throw new InvalidRequestException("TENANT_INACTIF");
         }
         if (user.role == UserRole.PARENT) {
+            LOG.warnv("Tenant login rejected reason=PARENT_LOGIN_DISABLED userId={0} tenantId={1} login={2}",
+                    user.id,
+                    user.tenant != null ? user.tenant.id : null,
+                    maskLogin(normalizedLogin));
             throw new InvalidRequestException("PARENT_LOGIN_DISABLED");
         }
         if (!passwordEncoder.matches(request.getPassword(), user.password)) {
             int newAttempts = incrementLockout(lockoutKey);
+            LOG.warnv("Tenant login failed reason=INVALID_PASSWORD userId={0} tenantId={1} login={2} attempts={3}",
+                    user.id,
+                    user.tenant != null ? user.tenant.id : null,
+                    maskLogin(normalizedLogin),
+                    newAttempts);
             if (newAttempts >= lockoutMaxAttempts) {
+                LOG.warnv("Tenant login rejected reason=COMPTE_VERROUILLE userId={0} login={1} attempts={2}",
+                        user.id,
+                        maskLogin(normalizedLogin),
+                        newAttempts);
                 throw new InvalidRequestException("COMPTE_VERROUILLE");
             }
             throw new InvalidRequestException("IDENTIFIANTS_INVALIDES");
@@ -138,22 +164,41 @@ public class AuthServiceImpl implements AuthService {
         boolean mustChange = user.mustChangePassword != null && user.mustChangePassword;
 
         auditLogService.log("LOGIN_SUCCESS", user.tenant != null ? user.tenant.id : null, user.id, user.role != null ? user.role.name() : null, null, null, null, null, null);
+        LOG.infov("Tenant login succeeded userId={0} tenantId={1} role={2} mustChangePassword={3}",
+                user.id,
+                user.tenant != null ? user.tenant.id : null,
+                user.role,
+                mustChange);
 
         return LoginResponse.of(accessToken, refreshToken, lifespan, mustChange);
     }
 
-    private LoginResponse loginPlatformUser(LoginRequest request, String lockoutKey) {
-        var platformUser = plateformeUtilisateurRepository.findByEmail(request.getLogin().trim().toLowerCase()).orElse(null);
+    private LoginResponse loginPlatformUser(LoginRequest request, String lockoutKey, String normalizedLogin) {
+        var platformUser = plateformeUtilisateurRepository.findByEmail(normalizedLogin).orElse(null);
         if (platformUser == null) {
-            incrementLockout(lockoutKey);
+            int newAttempts = incrementLockout(lockoutKey);
+            LOG.warnv("Login failed reason=UNKNOWN_ACCOUNT login={0} attempts={1}", maskLogin(normalizedLogin), newAttempts);
             throw new InvalidRequestException("IDENTIFIANTS_INVALIDES");
         }
         if (!Boolean.TRUE.equals(platformUser.actif)) {
+            LOG.warnv("Platform login rejected reason=USER_INACTIVE userId={0} login={1} role={2}",
+                    platformUser.id,
+                    maskLogin(normalizedLogin),
+                    platformUser.rolePlateforme);
             throw new InvalidRequestException("USER_INACTIVE");
         }
         if (!passwordEncoder.matches(request.getPassword(), platformUser.motDePasse)) {
             int newAttempts = incrementLockout(lockoutKey);
+            LOG.warnv("Platform login failed reason=INVALID_PASSWORD userId={0} login={1} role={2} attempts={3}",
+                    platformUser.id,
+                    maskLogin(normalizedLogin),
+                    platformUser.rolePlateforme,
+                    newAttempts);
             if (newAttempts >= lockoutMaxAttempts) {
+                LOG.warnv("Platform login rejected reason=COMPTE_VERROUILLE userId={0} login={1} attempts={2}",
+                        platformUser.id,
+                        maskLogin(normalizedLogin),
+                        newAttempts);
                 throw new InvalidRequestException("COMPTE_VERROUILLE");
             }
             throw new InvalidRequestException("IDENTIFIANTS_INVALIDES");
@@ -168,7 +213,26 @@ public class AuthServiceImpl implements AuthService {
                 lifespan
         );
         auditLogService.log("PLATFORM_LOGIN_SUCCESS", null, platformUser.id, platformUser.rolePlateforme, null, null, null, null, null);
+        LOG.infov("Platform login succeeded userId={0} role={1}", platformUser.id, platformUser.rolePlateforme);
         return LoginResponse.of(accessToken, null, lifespan, false);
+    }
+
+    private static String normalizeLogin(String login) {
+        return login != null ? login.trim().toLowerCase() : "";
+    }
+
+    private static String maskLogin(String login) {
+        if (login == null || login.isBlank()) {
+            return "blank";
+        }
+        int at = login.indexOf('@');
+        if (at > 1) {
+            return login.charAt(0) + "***" + login.substring(at);
+        }
+        if (login.length() <= 3) {
+            return "***";
+        }
+        return login.charAt(0) + "***" + login.charAt(login.length() - 1);
     }
 
     private static String normalizeLockoutKey(String login) {

@@ -13,6 +13,7 @@ import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.Provider;
+import org.jboss.logging.Logger;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -26,6 +27,8 @@ import java.util.UUID;
 @Provider
 @Priority(Priorities.AUTHENTICATION - 100)
 public class XTenantIdFilter implements ContainerRequestFilter {
+
+    private static final Logger LOG = Logger.getLogger(XTenantIdFilter.class);
 
     @Inject
     TenantContext tenantContext;
@@ -56,11 +59,18 @@ public class XTenantIdFilter implements ContainerRequestFilter {
         try {
             tenantId = UUID.fromString(headerValue.trim());
         } catch (IllegalArgumentException e) {
+            LOG.warnv("Tenant rejected reason=INVALID_HEADER path={0} headerValue={1}",
+                    path,
+                    headerValue);
             abort(requestContext, 403, "TENANT_INVALIDE", "X-Tenant-Id invalide (UUID attendu)");
             return;
         }
 
         if (tokenTenantId.isPresent() && !tokenTenantId.get().equals(tenantId)) {
+            LOG.warnv("Tenant rejected reason=TOKEN_HEADER_MISMATCH path={0} tokenTenantId={1} headerTenantId={2}",
+                    path,
+                    tokenTenantId.get(),
+                    tenantId);
             abort(requestContext, 403, "TENANT_INVALIDE", "X-Tenant-Id ne correspond pas au tenant du token");
             return;
         }
@@ -71,16 +81,23 @@ public class XTenantIdFilter implements ContainerRequestFilter {
     private boolean validateAndSetTenant(ContainerRequestContext requestContext, UUID tenantId) {
         var tenantOpt = tenantRepository.findById(tenantId);
         if (tenantOpt.isEmpty()) {
+            LOG.warnv("Tenant rejected reason=NOT_FOUND path={0} tenantId={1}",
+                    requestContext.getUriInfo().getPath(),
+                    tenantId);
             abort(requestContext, 403, "TENANT_INACTIF", "Établissement introuvable");
             return false;
         }
         TenantEntity tenant = tenantOpt.get();
         if (!Boolean.TRUE.equals(tenant.actif)) {
+            LOG.warnv("Tenant rejected reason=INACTIVE path={0} tenantId={1}",
+                    requestContext.getUriInfo().getPath(),
+                    tenantId);
             abort(requestContext, 403, "TENANT_INACTIF", "Établissement suspendu");
             return false;
         }
 
         tenantContext.setTenantId(tenant.id);
+        LOG.debugv("Tenant resolved path={0} tenantId={1}", requestContext.getUriInfo().getPath(), tenant.id);
         return true;
     }
 
