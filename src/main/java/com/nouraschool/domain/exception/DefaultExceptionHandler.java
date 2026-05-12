@@ -8,10 +8,10 @@ import jakarta.inject.Inject;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.Provider;
 import org.jboss.logging.Logger;
-import org.jboss.resteasy.reactive.RestResponse;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 
 import java.time.Instant;
@@ -32,66 +32,66 @@ public class DefaultExceptionHandler {
     CorrelationContext correlationContext;
 
     @ServerExceptionMapper
-    public RestResponse<ErrorDto> handleInvalidRequestException(InvalidRequestException ex) {
+    public Response handleInvalidRequestException(InvalidRequestException ex) {
         var backendError = backendErrorResolver.resolveByCodeName(ex.getMessage());
         var errorDto = buildErrorDto(backendError.getInternalNameCode(), backendError.getInternalMessage(),
                 backendError.getHttpCode(), List.of(backendError.getInternalMessage()));
-        return RestResponse.status(Response.Status.fromStatusCode(backendError.getHttpCode()), errorDto);
+        return Response.status(backendError.getHttpCode()).entity(errorDto).type(MediaType.APPLICATION_JSON).build();
     }
 
     @ServerExceptionMapper
-    public RestResponse<ErrorDto> handleNotFoundException(com.nouraschool.domain.exception.errors.NotFoundException ex) {
+    public Response handleNotFoundException(com.nouraschool.domain.exception.errors.NotFoundException ex) {
         String code = ex.getMessage() != null && !ex.getMessage().isBlank() ? ex.getMessage() : "RESSOURCE_INTROUVABLE";
         var backendError = backendErrorResolver.resolveByCodeName(code);
         var errorDto = buildErrorDto(backendError.getInternalNameCode(), backendError.getInternalMessage(),
                 backendError.getHttpCode(), null);
-        return RestResponse.status(Response.Status.fromStatusCode(backendError.getHttpCode()), errorDto);
+        return Response.status(backendError.getHttpCode()).entity(errorDto).type(MediaType.APPLICATION_JSON).build();
     }
 
     /** Gère la 404 JAX-RS (route inexistante ou non autorisée). */
     @ServerExceptionMapper
-    public RestResponse<ErrorDto> handleJaxRsNotFoundException(NotFoundException ex) {
+    public Response handleJaxRsNotFoundException(NotFoundException ex) {
         var errorDto = buildErrorDto("RESSOURCE_INTROUVABLE",
                 ex.getMessage() != null ? ex.getMessage() : "Ressource non trouvée", 404, null);
-        return RestResponse.status(Response.Status.NOT_FOUND, errorDto);
+        return Response.status(404).entity(errorDto).type(MediaType.APPLICATION_JSON).build();
     }
 
     @ServerExceptionMapper
-    public RestResponse<ErrorDto> handleServiceException(ServiceException ex) {
+    public Response handleServiceException(ServiceException ex) {
         var backendError = backendErrorResolver.resolveByCodeName(ex.getMessage());
         var errorDto = buildErrorDto(backendError.getInternalNameCode(), backendError.getInternalMessage(),
                 backendError.getHttpCode(), null);
-        return RestResponse.status(Response.Status.fromStatusCode(backendError.getHttpCode()), errorDto);
+        return Response.status(backendError.getHttpCode()).entity(errorDto).type(MediaType.APPLICATION_JSON).build();
     }
 
     @ServerExceptionMapper
-    public RestResponse<ErrorDto> handleConstraintViolationException(ConstraintViolationException ex) {
+    public Response handleConstraintViolationException(ConstraintViolationException ex) {
         var details = ex.getConstraintViolations().stream()
                 .map(violation -> violation.getPropertyPath() + ": " + violation.getMessage())
                 .collect(Collectors.toList());
         var errorDto = buildErrorDto("VALIDATION_ECHOUEE", "Contraintes de validation non respectées", 400, details);
-        return RestResponse.status(Response.Status.BAD_REQUEST, errorDto);
+        return Response.status(400).entity(errorDto).type(MediaType.APPLICATION_JSON).build();
     }
 
     @ServerExceptionMapper
-    public RestResponse<ErrorDto> handleWebApplicationException(WebApplicationException ex) {
+    public Response handleWebApplicationException(WebApplicationException ex) {
         Response response = ex.getResponse();
         int status = response != null ? response.getStatus() : 500;
         if (status >= 400 && status < 500) {
             String message = status == 400 ? "Requête invalide" : "Requête refusée";
             var errorDto = buildErrorDto("VALIDATION_ECHOUEE", message, status, null);
-            return RestResponse.status(Response.Status.fromStatusCode(status), errorDto);
+            return Response.status(status).entity(errorDto).type(MediaType.APPLICATION_JSON).build();
         }
         LOG.error("[DefaultExceptionHandler][handleWebApplicationException] Exception web non gérée", ex);
         var errorDto = buildErrorDto("ERREUR_INTERNE", "Une erreur inattendue s'est produite", 500, null);
-        return RestResponse.status(Response.Status.INTERNAL_SERVER_ERROR, errorDto);
+        return Response.status(500).entity(errorDto).type(MediaType.APPLICATION_JSON).build();
     }
 
     @ServerExceptionMapper
-    public RestResponse<ErrorDto> handleGlobalException(Exception ex) {
+    public Response handleGlobalException(Exception ex) {
         LOG.error("[DefaultExceptionHandler][handleGlobalException] Exception non gérée", ex);
         var errorDto = buildErrorDto("ERREUR_INTERNE", "Une erreur inattendue s'est produite", 500, null);
-        return RestResponse.status(Response.Status.INTERNAL_SERVER_ERROR, errorDto);
+        return Response.status(500).entity(errorDto).type(MediaType.APPLICATION_JSON).build();
     }
 
     /** Format standard task.md section 3.6 : code, message, details, correlationId, timestamp (ISO 8601). */
