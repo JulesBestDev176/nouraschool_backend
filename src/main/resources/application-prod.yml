@@ -1,9 +1,10 @@
 # Profil prod — déploiement (FOLDER 13 TACHES_CLICKUP)
 # Secrets via env : DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME
-# REDIS_HOST, REDIS_PORT, REDIS_PASSWORD
+# REDIS_HOST, REDIS_PORT, REDIS_PASSWORD (Redis obligatoire pour auth/rate-limit/reset/OTP)
 # JWT_ISSUER, JWT_AUDIENCE, JWT_ACCESS_TOKEN_LIFESPAN
-# AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, S3_BUCKET
-# ELASTIC_* si logging Elastic activé
+# AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, S3_BUCKET (optionnel actuellement)
+# ELASTIC_* uniquement si logging Elastic activé avec ELASTIC_LOGGING_ENABLED=true
+# QUARKUS_MAILER_* si l'envoi réel d'emails est activé
 
 quarkus:
   devservices:
