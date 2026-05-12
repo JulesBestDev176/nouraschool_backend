@@ -72,7 +72,7 @@ public class TenantServiceImpl implements TenantService {
         entity.emailContact = dto.getEmailContact();
         entity.telephone = dto.getTelephone();
         entity.adresse = dto.getAdresse();
-        entity.logoUrl = dto.getLogoUrl();
+        entity.logoUrl = sanitizeLogoUrl(dto.getLogoUrl());
         entity.plan = dto.getPlan() != null ? dto.getPlan() : "TRIAL";
         entity.actif = true;
         entity.dateExpiration = resolveExpiration(dto.getDurationMonths());
@@ -123,7 +123,7 @@ public class TenantServiceImpl implements TenantService {
         if (dto.getEmailContact() != null) entity.emailContact = dto.getEmailContact();
         if (dto.getTelephone() != null) entity.telephone = dto.getTelephone();
         if (dto.getAdresse() != null) entity.adresse = dto.getAdresse();
-        if (dto.getLogoUrl() != null) entity.logoUrl = dto.getLogoUrl();
+        if (dto.getLogoUrl() != null) entity.logoUrl = sanitizeLogoUrl(dto.getLogoUrl());
         if (dto.getPlan() != null) entity.plan = dto.getPlan();
         if (dto.getDurationMonths() != null) entity.dateExpiration = resolveExpiration(dto.getDurationMonths());
         if (dto.getActif() != null) entity.actif = dto.getActif();
@@ -257,6 +257,17 @@ public class TenantServiceImpl implements TenantService {
             return null;
         }
         return LocalDate.now().plusMonths(durationMonths);
+    }
+
+    private String sanitizeLogoUrl(String logoUrl) {
+        if (logoUrl == null || logoUrl.isBlank()) {
+            return null;
+        }
+        String value = logoUrl.trim();
+        if (value.regionMatches(true, 0, "data:", 0, 5)) {
+            return null;
+        }
+        return value;
     }
 
     private String generateSimplePassword() {
