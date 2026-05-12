@@ -6,12 +6,15 @@ import com.nouraschool.domain.entities.PlateformeUtilisateurEntity;
 import com.nouraschool.domain.exception.errors.InvalidRequestException;
 import com.nouraschool.domain.exception.errors.NotFoundException;
 import com.nouraschool.domain.repositories.PlateformeUtilisateurRepository;
+import com.nouraschool.domain.services.EmailService;
+import com.nouraschool.domain.services.NotificationLogService;
 import com.nouraschool.domain.services.PasswordEncoder;
 import com.nouraschool.domain.services.PlateformeUtilisateurService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 
+import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -21,11 +24,20 @@ import java.util.stream.Collectors;
 @ApplicationScoped
 public class PlateformeUtilisateurServiceImpl implements PlateformeUtilisateurService {
 
+    private static final SecureRandom PASSWORD_RANDOM = new SecureRandom();
+    private static final String PASSWORD_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
+
     @Inject
     PlateformeUtilisateurRepository repository;
 
     @Inject
     PasswordEncoder passwordEncoder;
+
+    @Inject
+    NotificationLogService notificationLogService;
+
+    @Inject
+    EmailService emailService;
 
     @Override
     public List<PlateformeUtilisateurDto> findAll() {
@@ -47,14 +59,17 @@ public class PlateformeUtilisateurServiceImpl implements PlateformeUtilisateurSe
             throw new InvalidRequestException("VALIDATION_ECHOUEE");
         }
         PlateformeUtilisateurEntity entity = new PlateformeUtilisateurEntity();
+        String temporaryPassword = generateSimplePassword();
         entity.nom = dto.getNom();
         entity.prenom = dto.getPrenom();
         entity.email = dto.getEmail();
-        entity.motDePasse = passwordEncoder.encode(dto.getMotDePasse());
+        entity.telephone = dto.getTelephone();
+        entity.motDePasse = passwordEncoder.encode(temporaryPassword);
         entity.rolePlateforme = dto.getRolePlateforme();
         entity.actif = true;
         entity.createdAt = Instant.now();
         repository.persist(entity);
+        logPlatformUserCredentials(entity, temporaryPassword);
         return toDto(entity);
     }
 
@@ -82,9 +97,48 @@ public class PlateformeUtilisateurServiceImpl implements PlateformeUtilisateurSe
                 .nom(e.nom)
                 .prenom(e.prenom)
                 .email(e.email)
+                .telephone(e.telephone)
                 .rolePlateforme(e.rolePlateforme)
                 .actif(e.actif)
                 .createdAt(e.createdAt)
                 .build();
+    }
+
+    private String generateSimplePassword() {
+        StringBuilder password = new StringBuilder("Ns-");
+        for (int i = 0; i < 8; i++) {
+            password.append(PASSWORD_ALPHABET.charAt(PASSWORD_RANDOM.nextInt(PASSWORD_ALPHABET.length())));
+        }
+        return password.toString();
+    }
+
+    private void logPlatformUserCredentials(PlateformeUtilisateurEntity user, String temporaryPassword) {
+        String content = String.format(
+                "Bonjour %s %s,%n%n"
+                        + "Votre compte plateforme NouraSchool a été créé.%n%n"
+                        + "Identifiants de connexion :%n"
+                        + "Email : %s%n"
+                        + "Mot de passe temporaire : %s%n"
+                        + "Rôle : %s%n%n"
+                        + "Merci de modifier ce mot de passe après la première connexion.%n",
+                user.prenom,
+                user.nom,
+                user.email,
+                temporaryPassword,
+                user.rolePlateforme
+        );
+        UUID logId = notificationLogService.log(
+                null,
+                NotificationLogService.CANAL_EMAIL,
+                user.email,
+                "Identifiants compte plateforme NouraSchool",
+                content
+        );
+        try {
+            emailService.send(user.email, "Identifiants compte plateforme NouraSchool", content);
+            notificationLogService.markSent(logId);
+        } catch (Exception e) {
+            notificationLogService.markFailed(logId, e.getMessage());
+        }
     }
 }

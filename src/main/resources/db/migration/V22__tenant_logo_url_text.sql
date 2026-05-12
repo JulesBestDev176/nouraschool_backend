@@ -1,0 +1,2 @@
+ALTER TABLE tenant
+    ALTER COLUMN logo_url TYPE TEXT;

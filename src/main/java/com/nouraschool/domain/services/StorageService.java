@@ -34,4 +34,14 @@ public interface StorageService {
      * @param key clé de l'objet
      */
     void delete(String key);
+
+    /**
+     * Retourne l'URL publique permanente d'un objet (logos, images accessibles en lecture libre).
+     * Si {@code app.storage.public-base-url} est configuré, retourne {@code baseUrl/key}.
+     * Sinon, génère une URL pré-signée de longue durée en fallback.
+     *
+     * @param key clé de l'objet
+     * @return URL permanente ou pré-signée
+     */
+    String getPublicUrl(String key);
 }

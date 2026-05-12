@@ -17,6 +17,7 @@ public class PlateformeUtilisateurDto {
     private String nom;
     private String prenom;
     private String email;
+    private String telephone;
     private String rolePlateforme;
     private Boolean actif;
     private Instant createdAt;

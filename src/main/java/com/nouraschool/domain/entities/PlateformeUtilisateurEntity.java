@@ -26,6 +26,9 @@ public class PlateformeUtilisateurEntity extends PanacheEntityBase {
     @Column(nullable = false, unique = true, length = 254)
     public String email;
 
+    @Column(length = 20)
+    public String telephone;
+
     @Column(name = "mot_de_passe", nullable = false)
     public String motDePasse;
 

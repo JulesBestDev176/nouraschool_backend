@@ -4,7 +4,7 @@
 # JWT_ISSUER, JWT_AUDIENCE, JWT_ACCESS_TOKEN_LIFESPAN
 # AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, S3_BUCKET (optionnel actuellement)
 # ELASTIC_* uniquement si logging Elastic activé avec ELASTIC_LOGGING_ENABLED=true
-# QUARKUS_MAILER_* si l'envoi réel d'emails est activé
+# Resend emails : RESEND_API_KEY, RESEND_FROM, RESEND_REPLY_TO
 
 quarkus:
   devservices:
@@ -31,6 +31,11 @@ quarkus:
     port: 8080
 
 app:
+  mail:
+    from: ${RESEND_FROM:NouraSchool <onboarding@resend.dev>}
+    reply-to: ${RESEND_REPLY_TO:}
+    resend:
+      api-key: ${RESEND_API_KEY:}
   security:
     jwt-validation-enabled: true
   logging:

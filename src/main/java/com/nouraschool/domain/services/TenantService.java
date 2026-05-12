@@ -26,4 +26,12 @@ public interface TenantService {
 
     /** Crée un tenant si le slug n'existe pas (slug dérivé du nom si absent). */
     TenantDto autoRegister(String nom, String slug);
+
+    /**
+     * Uploade le logo d'un tenant vers MinIO.
+     * Chemin dans le bucket : {@code tenants/{slug}/logos/logo.{extension}}
+     *
+     * @return URL publique permanente du logo
+     */
+    String uploadLogo(java.util.UUID id, java.io.InputStream input, String contentType, long contentLength, String extension);
 }

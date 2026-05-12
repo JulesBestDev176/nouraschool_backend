@@ -29,16 +29,19 @@ public class StorageServiceS3Impl implements StorageService {
     private final S3Presigner presigner;
     private final String bucket;
     private final Duration presignDuration;
+    private final String publicBaseUrl;
 
     public StorageServiceS3Impl(
             S3Client s3,
             @ConfigProperty(name = "app.storage.bucket") String bucket,
             @ConfigProperty(name = "app.storage.presign-expiration-minutes") long presignExpirationMinutes,
+            @ConfigProperty(name = "app.storage.public-base-url", defaultValue = "") String publicBaseUrl,
             @ConfigProperty(name = "quarkus.s3.aws.region", defaultValue = "us-east-1") String region,
             @ConfigProperty(name = "quarkus.s3.endpoint-override", defaultValue = "") Optional<String> endpointOverride) {
         this.s3 = s3;
         this.bucket = bucket;
         this.presignDuration = Duration.ofMinutes(presignExpirationMinutes);
+        this.publicBaseUrl = publicBaseUrl;
         S3Presigner.Builder presignerBuilder = S3Presigner.builder()
                 .region(Region.of(region));
         if (endpointOverride.isPresent() && !endpointOverride.get().isBlank()) {
@@ -86,5 +89,13 @@ public class StorageServiceS3Impl implements StorageService {
                 .key(key)
                 .build();
         s3.deleteObject(request);
+    }
+
+    @Override
+    public String getPublicUrl(String key) {
+        if (publicBaseUrl != null && !publicBaseUrl.isBlank()) {
+            return publicBaseUrl.stripTrailing() + "/" + key;
+        }
+        return getPresignedUrl(key).orElse("");
     }
 }

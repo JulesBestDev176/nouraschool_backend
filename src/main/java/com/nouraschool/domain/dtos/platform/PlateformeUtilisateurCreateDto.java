@@ -24,9 +24,9 @@ public class PlateformeUtilisateurCreateDto {
     @Size(max = 254)
     private String email;
 
-    @NotBlank(message = "Mot de passe requis")
-    @Size(min = 8)
-    private String motDePasse;
+    @NotBlank(message = "Téléphone requis")
+    @Size(max = 20)
+    private String telephone;
 
     @NotBlank(message = "Rôle plateforme requis (SUPER_ADMIN | GESTIONNAIRE)")
     @Size(max = 50)

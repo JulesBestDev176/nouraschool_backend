@@ -100,13 +100,14 @@ quarkus:
     aws:
       region: ${AWS_REGION:us-east-1}
       credentials:
-        type: ${AWS_CREDENTIALS_TYPE:default}
+        type: static
         static-provider:
           access-key-id: ${AWS_ACCESS_KEY_ID:}
           secret-access-key: ${AWS_SECRET_ACCESS_KEY:}
     endpoint-override: ${S3_ENDPOINT_OVERRIDE:}
+    path-style-access: true
     devservices:
-      enabled: true
+      enabled: ${S3_DEVSERVICES_ENABLED:true}
       buckets: noura-school-files
 
 mp:
@@ -144,6 +145,11 @@ app:
       login-window-seconds: 600   # 10 min
       forgot-per-email: 3
       forgot-window-seconds: 900   # 15 min
+  mail:
+    from: ${RESEND_FROM:NouraSchool <onboarding@resend.dev>}
+    reply-to: ${RESEND_REPLY_TO:}
+    resend:
+      api-key: ${RESEND_API_KEY:}
   # Codes d'erreur métier (remplace le CSV) — gestion des erreurs avec codes spécifiques
   error-codes:
     - code: IDENTIFIANTS_INVALIDES
@@ -204,10 +210,13 @@ app:
   # Paiement : API Payetech (intégration plus tard)
   payment:
     provider: payetech
-  # Stockage S3 (documents, bulletins) — URLs pré-signées 15 min (task.md)
+  # Stockage MinIO (S3-compatible) — logos, documents, bulletins
+  # Organisation bucket : tenants/{slug}/logos/ | tenants/{slug}/documents/ | bulletins/{slug}/ | eleves/{slug}/
   storage:
     bucket: ${S3_BUCKET:noura-school-files}
     presign-expiration-minutes: 15
+    # URL publique MinIO (http://localhost:9000/noura-school-files en dev, domaine public en prod)
+    public-base-url: ${S3_PUBLIC_BASE_URL:http://localhost:9000/noura-school-files}
 
 smallrye:
   jwt:

@@ -29,7 +29,7 @@ public class TenantEntity extends PanacheEntityBase {
     @Column(columnDefinition = "TEXT")
     public String adresse;
 
-    @Column(name = "logo_url", length = 500)
+    @Column(name = "logo_url", columnDefinition = "TEXT")
     public String logoUrl;
 
     @Column(nullable = false, length = 50)

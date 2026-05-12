@@ -22,11 +22,12 @@ public class TenantUpdateDto {
 
     private String adresse;
 
-    @Size(max = 500)
     private String logoUrl;
 
     @Size(max = 50)
     private String plan;
+
+    private Integer durationMonths;
 
     private Boolean actif;
 
