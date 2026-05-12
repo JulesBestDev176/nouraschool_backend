@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
  */
 @Path("/api/platform/audit-logs")
 @Produces(MediaType.APPLICATION_JSON)
-@RolesAllowed({"ADMIN", "SUPER_ADMIN", "GESTIONNAIRE"})
+@RolesAllowed({"SUPER_ADMIN", "GESTIONNAIRE"})
 @SecurityRequirement(name = "Bearer")
 public class AuditLogResource {
 

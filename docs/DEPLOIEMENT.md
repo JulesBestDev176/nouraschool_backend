@@ -426,6 +426,13 @@ Recommandations :
 - SMTP n'est pas obligatoire au démarrage, mais la création d'un élève tente d'envoyer un email avec les identifiants.
 - Ne jamais mettre les secrets dans Git. Les valeurs sensibles restent dans Coolify et GitHub Secrets.
 
+Comptes seedés au premier démarrage :
+
+- compte plateforme : `superadmin@noura-school.com` / `SuperAdmin123!`, rôle `SUPER_ADMIN`, à changer immédiatement après déploiement ;
+- compte école par défaut : `admin` / `Admin123!`, rôle `ADMIN`, utile pour vérifier les routes métier du tenant `default`.
+
+Le compte plateforme sert à créer les écoles via `/api/platform/tenants`. Le compte `ADMIN` d'une école ne doit pas accéder aux routes `/api/platform/*`.
+
 ### 8. Premier déploiement manuel
 
 Avant d'activer l'automatisation :

@@ -8,6 +8,7 @@ import com.nouraschool.domain.entities.UserEntity;
 import com.nouraschool.domain.constants.Constants;
 import com.nouraschool.domain.enums.UserRole;
 import com.nouraschool.domain.exception.errors.InvalidRequestException;
+import com.nouraschool.domain.repositories.PlateformeUtilisateurRepository;
 import com.nouraschool.domain.repositories.RefreshTokenRepository;
 import com.nouraschool.domain.repositories.SurveillantCycleRepository;
 import com.nouraschool.domain.repositories.UserRepository;
@@ -46,6 +47,7 @@ public class AuthServiceImpl implements AuthService {
     private static final String REDIS_KEY_RATELIMIT_FORGOT = "auth:ratelimit:forgot:";
 
     private final UserRepository userRepository;
+    private final PlateformeUtilisateurRepository plateformeUtilisateurRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final SurveillantCycleRepository surveillantCycleRepository;
     private final PasswordEncoder passwordEncoder;
@@ -64,6 +66,7 @@ public class AuthServiceImpl implements AuthService {
     @Inject
     public AuthServiceImpl(
             UserRepository userRepository,
+            PlateformeUtilisateurRepository plateformeUtilisateurRepository,
             RefreshTokenRepository refreshTokenRepository,
             SurveillantCycleRepository surveillantCycleRepository,
             PasswordEncoder passwordEncoder,
@@ -79,6 +82,7 @@ public class AuthServiceImpl implements AuthService {
             @ConfigProperty(name = "app.auth.rate-limit.forgot-per-email", defaultValue = "3") int forgotPerEmail,
             @ConfigProperty(name = "app.auth.rate-limit.forgot-window-seconds", defaultValue = "900") long forgotWindowSeconds) {
         this.userRepository = userRepository;
+        this.plateformeUtilisateurRepository = plateformeUtilisateurRepository;
         this.refreshTokenRepository = refreshTokenRepository;
         this.surveillantCycleRepository = surveillantCycleRepository;
         this.passwordEncoder = passwordEncoder;
@@ -107,8 +111,7 @@ public class AuthServiceImpl implements AuthService {
 
         UserEntity user = userRepository.findByUsernameOrEmailOrPhone(request.getLogin());
         if (user == null) {
-            incrementLockout(lockoutKey);
-            throw new InvalidRequestException("IDENTIFIANTS_INVALIDES");
+            return loginPlatformUser(request, lockoutKey);
         }
         if (!user.active) {
             throw new InvalidRequestException("USER_INACTIVE");
@@ -137,6 +140,35 @@ public class AuthServiceImpl implements AuthService {
         auditLogService.log("LOGIN_SUCCESS", user.tenant != null ? user.tenant.id : null, user.id, user.role != null ? user.role.name() : null, null, null, null, null, null);
 
         return LoginResponse.of(accessToken, refreshToken, lifespan, mustChange);
+    }
+
+    private LoginResponse loginPlatformUser(LoginRequest request, String lockoutKey) {
+        var platformUser = plateformeUtilisateurRepository.findByEmail(request.getLogin().trim().toLowerCase()).orElse(null);
+        if (platformUser == null) {
+            incrementLockout(lockoutKey);
+            throw new InvalidRequestException("IDENTIFIANTS_INVALIDES");
+        }
+        if (!Boolean.TRUE.equals(platformUser.actif)) {
+            throw new InvalidRequestException("USER_INACTIVE");
+        }
+        if (!passwordEncoder.matches(request.getPassword(), platformUser.motDePasse)) {
+            int newAttempts = incrementLockout(lockoutKey);
+            if (newAttempts >= lockoutMaxAttempts) {
+                throw new InvalidRequestException("COMPTE_VERROUILLE");
+            }
+            throw new InvalidRequestException("IDENTIFIANTS_INVALIDES");
+        }
+
+        redisService.delete(lockoutKey);
+
+        long lifespan = applicationProperties.jwt().accessTokenLifespan();
+        String accessToken = jwtGenerator.generatePlatformAccessToken(
+                platformUser,
+                Set.of(platformUser.rolePlateforme),
+                lifespan
+        );
+        auditLogService.log("PLATFORM_LOGIN_SUCCESS", null, platformUser.id, platformUser.rolePlateforme, null, null, null, null, null);
+        return LoginResponse.of(accessToken, null, lifespan, false);
     }
 
     private static String normalizeLockoutKey(String login) {

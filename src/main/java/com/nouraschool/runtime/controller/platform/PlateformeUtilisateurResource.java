@@ -17,7 +17,7 @@ import java.util.UUID;
 @Path("/api/platform/utilisateurs")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-@RolesAllowed({"ADMIN", "SUPER_ADMIN", "GESTIONNAIRE"})
+@RolesAllowed({"SUPER_ADMIN", "GESTIONNAIRE"})
 @SecurityRequirement(name = "Bearer")
 public class PlateformeUtilisateurResource {
 

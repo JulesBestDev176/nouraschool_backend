@@ -3,16 +3,19 @@ package com.nouraschool.runtime.tenant;
 import com.nouraschool.domain.constants.Constants;
 import com.nouraschool.domain.entities.TenantEntity;
 import com.nouraschool.domain.repositories.TenantRepository;
+import com.nouraschool.domain.services.JwtService;
 import jakarta.annotation.Priority;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Priorities;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
+import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.Provider;
 
 import java.io.IOException;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -30,6 +33,9 @@ public class XTenantIdFilter implements ContainerRequestFilter {
     @Inject
     TenantRepository tenantRepository;
 
+    @Inject
+    JwtService jwtService;
+
     @Override
     public void filter(ContainerRequestContext requestContext) throws IOException {
         String path = requestContext.getUriInfo().getPath();
@@ -39,8 +45,10 @@ public class XTenantIdFilter implements ContainerRequestFilter {
         }
 
         String headerValue = requestContext.getHeaderString(Constants.HEADER_TENANT_ID);
+        Optional<UUID> tokenTenantId = resolveTokenTenantId(requestContext);
         if (headerValue == null || headerValue.isBlank()) {
-            tenantContext.setTenantId(tenantRepository.findDefault().id);
+            UUID tenantId = tokenTenantId.orElseGet(() -> tenantRepository.findDefault().id);
+            validateAndSetTenant(requestContext, tenantId);
             return;
         }
 
@@ -52,18 +60,48 @@ public class XTenantIdFilter implements ContainerRequestFilter {
             return;
         }
 
+        if (tokenTenantId.isPresent() && !tokenTenantId.get().equals(tenantId)) {
+            abort(requestContext, 403, "TENANT_INVALIDE", "X-Tenant-Id ne correspond pas au tenant du token");
+            return;
+        }
+
+        validateAndSetTenant(requestContext, tenantId);
+    }
+
+    private boolean validateAndSetTenant(ContainerRequestContext requestContext, UUID tenantId) {
         var tenantOpt = tenantRepository.findById(tenantId);
         if (tenantOpt.isEmpty()) {
             abort(requestContext, 403, "TENANT_INACTIF", "Établissement introuvable");
-            return;
+            return false;
         }
         TenantEntity tenant = tenantOpt.get();
         if (!Boolean.TRUE.equals(tenant.actif)) {
             abort(requestContext, 403, "TENANT_INACTIF", "Établissement suspendu");
-            return;
+            return false;
         }
 
         tenantContext.setTenantId(tenant.id);
+        return true;
+    }
+
+    private Optional<UUID> resolveTokenTenantId(ContainerRequestContext requestContext) {
+        String authHeader = requestContext.getHeaderString(HttpHeaders.AUTHORIZATION);
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return Optional.empty();
+        }
+        String token = authHeader.substring("Bearer ".length()).trim();
+        return jwtService.parse(token)
+                .map(jwt -> jwt.getClaim("tenantId"))
+                .filter(claim -> claim != null && !claim.toString().isBlank())
+                .flatMap(claim -> parseUuid(claim.toString()));
+    }
+
+    private Optional<UUID> parseUuid(String value) {
+        try {
+            return Optional.of(UUID.fromString(value));
+        } catch (IllegalArgumentException e) {
+            return Optional.empty();
+        }
     }
 
     private void abort(ContainerRequestContext requestContext, int status, String code, String message) {

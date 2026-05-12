@@ -2,9 +2,6 @@ package com.nouraschool.domain.entities;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
-
 import java.time.Instant;
 import java.util.UUID;
 
@@ -18,7 +15,6 @@ public class PlateformeUtilisateurEntity extends PanacheEntityBase {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @JdbcTypeCode(SqlTypes.VARCHAR)
     public UUID id;
 
     @Column(nullable = false, length = 100)

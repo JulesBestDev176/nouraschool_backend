@@ -117,6 +117,7 @@ En développement : **`GET /q/swagger-ui`** — liste interactive de tous les en
 
 - `login` : email, username ou numéro de téléphone
 - `password` : mot de passe (minimum 12 caractères en création/réinit)
+- Pour un compte plateforme (`SUPER_ADMIN` ou `GESTIONNAIRE`), `login` est l'email de `plateforme_utilisateur`.
 
 **Réponse 200** :
 ```json
@@ -132,6 +133,8 @@ En développement : **`GET /q/swagger-ui`** — liste interactive de tous les en
 - `refreshToken` : pour obtenir un nouveau JWT sans reconnecter
 - `expiresIn` : durée de validité en secondes (900 = 15 min)
 - `passwordChangeRequired` : `true` si l'utilisateur doit changer son mot de passe
+
+Pour un compte plateforme, `refreshToken` peut être `null`; le token contient `accountType=PLATFORM` et un rôle `SUPER_ADMIN` ou `GESTIONNAIRE`.
 
 ### Rafraîchir le token (refresh)
 
@@ -231,7 +234,7 @@ Et pour le multi-tenant (sauf SUPER_ADMIN) :
 X-Tenant-Id: <uuid-du-tenant>
 ```
 
-Le `tenantId` est disponible dans la réponse de `/me`.
+Le `tenantId` est disponible dans la réponse de `/me`. Si le JWT contient un `tenantId`, le backend vérifie que `X-Tenant-Id` correspond au tenant du token.
 
 ### Erreurs auth fréquentes
 

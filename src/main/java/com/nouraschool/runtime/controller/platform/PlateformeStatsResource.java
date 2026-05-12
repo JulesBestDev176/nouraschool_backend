@@ -12,7 +12,7 @@ import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement
 
 @Path("/api/platform/stats")
 @Produces(MediaType.APPLICATION_JSON)
-@RolesAllowed({"ADMIN", "SUPER_ADMIN", "GESTIONNAIRE"})
+@RolesAllowed({"SUPER_ADMIN", "GESTIONNAIRE"})
 @SecurityRequirement(name = "Bearer")
 public class PlateformeStatsResource {
 

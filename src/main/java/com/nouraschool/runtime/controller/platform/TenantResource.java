@@ -17,12 +17,12 @@ import java.util.UUID;
 
 /**
  * API plateforme : gestion des tenants (établissements).
- * Nécessite rôle ADMIN, SUPER_ADMIN ou GESTIONNAIRE.
+ * Nécessite un rôle plateforme. Un administrateur d'école ne doit pas gérer les tenants.
  */
 @Path("/api/platform/tenants")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-@RolesAllowed({"ADMIN", "SUPER_ADMIN", "GESTIONNAIRE"})
+@RolesAllowed({"SUPER_ADMIN", "GESTIONNAIRE"})
 @SecurityRequirement(name = "Bearer")
 public class TenantResource {
 
