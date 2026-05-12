@@ -19,15 +19,12 @@ public class AuditLogEntity extends PanacheEntityBase {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @JdbcTypeCode(SqlTypes.VARCHAR)
     public UUID id;
 
     @Column(name = "tenant_id")
-    @JdbcTypeCode(SqlTypes.VARCHAR)
     public UUID tenantId;
 
     @Column(name = "utilisateur_id")
-    @JdbcTypeCode(SqlTypes.VARCHAR)
     public UUID utilisateurId;
 
     @Column(length = 50)
@@ -40,7 +37,6 @@ public class AuditLogEntity extends PanacheEntityBase {
     public String resourceType;
 
     @Column(name = "resource_id")
-    @JdbcTypeCode(SqlTypes.VARCHAR)
     public UUID resourceId;
 
     @JdbcTypeCode(SqlTypes.JSON)
