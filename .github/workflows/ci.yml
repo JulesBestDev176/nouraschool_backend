@@ -27,7 +27,7 @@ jobs:
           cache: "maven"
 
       - name: Build package
-        run: mvn package -B -Dmaven.test.skip=true -Dquarkus.package.type=jar
+        run: mvn package -B -Dmaven.test.skip=true
         env:
           MAVEN_OPTS: -Xmx1024m
 
