@@ -1,5 +1,5 @@
 -- notification_log : traçabilité des envois (task.md section 15)
--- Toute notification est enregistrée ici avant envoi (WHATSAPP, SMS, EMAIL, IN_APP)
+-- Toute notification est enregistrée ici avant envoi (WHATSAPP, EMAIL, IN_APP)
 CREATE TABLE notification_log (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     tenant_id       UUID,

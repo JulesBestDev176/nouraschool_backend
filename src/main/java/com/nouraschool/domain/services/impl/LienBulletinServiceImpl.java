@@ -10,6 +10,8 @@ import com.nouraschool.domain.repositories.BulletinRepository;
 import com.nouraschool.domain.repositories.LienBulletinParentRepository;
 import com.nouraschool.domain.repositories.ParentRepository;
 import com.nouraschool.domain.services.LienBulletinService;
+import com.nouraschool.domain.services.OtpService;
+import com.nouraschool.domain.services.WhatsAppService;
 import com.nouraschool.runtime.tenant.TenantContext;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -36,6 +38,12 @@ public class LienBulletinServiceImpl implements LienBulletinService {
     @Inject
     TenantContext tenantContext;
 
+    @Inject
+    OtpService otpService;
+
+    @Inject
+    WhatsAppService whatsAppService;
+
     @Override
     @Transactional
     public LienBulletinParentDto generate(UUID bulletinId, UUID parentId) {
@@ -43,19 +51,22 @@ public class LienBulletinServiceImpl implements LienBulletinService {
 
         BulletinEntity bulletin = bulletinRepository.findById(bulletinId);
         if (bulletin == null) throw new NotFoundException("Bulletin introuvable: " + bulletinId);
-        if (parentRepository.findById(parentId) == null) throw new NotFoundException("Parent introuvable: " + parentId);
+        ParentEntity parent = parentRepository.findById(parentId);
+        if (parent == null) throw new NotFoundException("Parent introuvable: " + parentId);
 
         String token = UUID.randomUUID().toString().replace("-", "");
 
         LienBulletinParentEntity entity = new LienBulletinParentEntity();
         entity.tenantId = tenantId;
         entity.bulletin = bulletin;
-        entity.parent = parentRepository.findById(parentId);
+        entity.parent = parent;
         entity.token = token;
         entity.expiresAt = Instant.now().plus(Duration.ofDays(EXPIRY_DAYS));
         entity.otpVerified = false;
 
-        return toDto(lienRepository.persist(entity));
+        LienBulletinParentEntity persisted = lienRepository.persist(entity);
+        sendOtpToParent(persisted, parent);
+        return toDto(persisted);
     }
 
     @Override
@@ -76,11 +87,11 @@ public class LienBulletinServiceImpl implements LienBulletinService {
         if (entity.expiresAt.isBefore(Instant.now())) {
             throw new InvalidRequestException("REGLE_METIER_VIOLEE");
         }
-        if (otp != null && otp.length() == 6) {
+        if (otp != null && otp.length() == 6 && otpService.verify(otpKey(token), otp)) {
             entity.otpVerified = true;
             return toDto(lienRepository.persist(entity));
         }
-        throw new InvalidRequestException("VALIDATION_ECHOUEE");
+        throw new InvalidRequestException("OTP_INVALIDE");
     }
 
     private LienBulletinParentDto toDto(LienBulletinParentEntity e) {
@@ -100,5 +111,17 @@ public class LienBulletinServiceImpl implements LienBulletinService {
             throw new InvalidRequestException("Tenant context required");
         }
         return tenantContext.getTenantId();
+    }
+
+    private void sendOtpToParent(LienBulletinParentEntity lien, ParentEntity parent) {
+        if (parent.telephone == null || parent.telephone.isBlank()) {
+            throw new InvalidRequestException("TELEPHONE_PARENT_REQUIS");
+        }
+        String code = otpService.generate(otpKey(lien.token));
+        whatsAppService.sendOtp(parent.telephone, code);
+    }
+
+    private String otpKey(String token) {
+        return "lien-bulletin:" + token;
     }
 }

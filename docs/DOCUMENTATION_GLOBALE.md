@@ -34,7 +34,7 @@
 | **SURVEILLANT** | CPE, surveillant général | Voit les élèves et absences de ses cycles assignés (ex. collège uniquement ou lycée uniquement), gère les convocations |
 | **ENSEIGNANT** | Professeur | Voit ses classes et matières, saisit les notes, fait les appels, le cahier de texte |
 | **ELEVE** | Élève | Voit son profil, ses notes, bulletins validés, absences, emploi du temps, peut déposer des réclamations |
-| **PARENT** | Parent d'élève | **N'accède pas à la plateforme.** Reçoit des liens par email/SMS (bulletin, paiement, absences, emploi du temps, convocations, etc.) et consulte le contenu via ces liens (souvent avec OTP) |
+| **PARENT** | Parent d'élève | **N'accède pas à la plateforme.** Reçoit des liens par email ou WhatsApp (bulletin, paiement, absences, emploi du temps, convocations, etc.) et consulte le contenu via ces liens (souvent avec OTP) |
 
 ### Flux typique
 
@@ -43,7 +43,7 @@
 3. **L'admin ou le caissier** inscrit les élèves et crée les comptes parents.
 4. **L'enseignant** saisit les notes, fait les appels, gère le cahier de texte.
 5. **L'élève** consulte ses notes et bulletins.
-6. **Le parent** reçoit des liens (par email/SMS) pour consulter bulletin, paiement, absences, emploi du temps, convocations, etc. — pas d'espace de connexion.
+6. **Le parent** reçoit des liens (par email ou WhatsApp) pour consulter bulletin, paiement, absences, emploi du temps, convocations, etc. — pas d'espace de connexion.
 
 ### Multi-tenant
 
@@ -61,7 +61,7 @@ Chaque école = **1 tenant**. Les données sont isolées : une école A ne voit 
 - ✅ Personnel, pointage, absences personnel
 - ✅ Liens bulletin parent (génération, consultation OTP)
 - ✅ Gestion plateforme (tenants, super-admin)
-- ✅ Envoi d'emails (compte créé, reset mdp, bulletin), OTP par email
+- ✅ Envoi d'emails (compte créé, reset mdp, bulletin), OTP par Redis + WhatsApp
 
 ---
 
@@ -297,7 +297,7 @@ Le `tenantId` est disponible dans la réponse de `/me`. Si le JWT contient un `t
 
 ### PARENT — accès par liens uniquement (pas de connexion)
 
-Le parent **n'a pas d'espace de connexion**. Il reçoit des liens par email ou SMS et ouvre directement le contenu (souvent après vérification OTP). Types de liens :
+Le parent **n'a pas d'espace de connexion**. Il reçoit des liens par email ou WhatsApp et ouvre directement le contenu (souvent après vérification OTP). Types de liens :
 
 - **Bulletins** : `/api/v1/liens-bulletin/{token}/consulter` — consulter un bulletin
 - **Paiements** : `/api/v1/liens-paiement/{token}/detail`, `payer` — payer une facture
@@ -462,7 +462,7 @@ Le parent **n'a pas d'espace de connexion**. Il reçoit des liens par email ou S
 
 ### Accès parent par liens (pas de connexion)
 
-Le parent ne se connecte pas. Il clique sur un lien reçu (email/SMS), éventuellement vérifie un OTP, puis consulte le contenu.
+Le parent ne se connecte pas. Il clique sur un lien reçu par email ou WhatsApp, éventuellement vérifie un OTP, puis consulte le contenu.
 
 | Type | Endpoints | Description |
 |------|-----------|-------------|
@@ -578,7 +578,7 @@ Le parent ne se connecte pas. Il clique sur un lien reçu (email/SMS), éventuel
 
 | Fonctionnalité | Priorité | Description |
 |----------------|----------|-------------|
-| Intégration WhatsApp/Twilio | Basse | Templates réels (stubs en place) |
+| Gateway WhatsApp OTP | Moyenne | Service Node `whatsapp-gateway` basé sur whatsapp-web.js, à déployer et connecter via `WHATSAPP_GATEWAY_*` |
 | Parent : connexion OTP | Moyenne | Accès parent par lien + OTP (liens bulletin/paiement existent) |
 | Tests charge 100 tenants | Basse | Simulation Gatling étendue |
 | Scan OWASP ZAP (staging) | Moyenne | Revues sécurité |

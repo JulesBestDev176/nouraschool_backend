@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "noura-school-api",
     "name": "Noura School API",
-    "description": "Collection complète pour l'API Noura School - Tous les endpoints avec variables Postman",
+    "description": "Collection mise à jour depuis les contrôleurs JAX-RS du backend. Inclut Auth, Health/OpenAPI, API v1, Plateforme et anciens endpoints legacy. Générée le 2026-05-14.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "auth": {
@@ -16,300 +16,4996 @@
     ]
   },
   "variable": [
-    { "key": "base_url", "value": "http://localhost:8080" },
-    { "key": "access_token", "value": "" },
-    { "key": "refresh_token", "value": "" },
-    { "key": "username", "value": "admin" },
-    { "key": "password", "value": "Admin123!" },
-    { "key": "id", "value": "" },
-    { "key": "eleveId", "value": "" },
-    { "key": "classeId", "value": "" },
-    { "key": "noteId", "value": "" },
-    { "key": "statut", "value": "EN_ATTENTE" }
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "access_token",
+      "value": ""
+    },
+    {
+      "key": "refresh_token",
+      "value": ""
+    },
+    {
+      "key": "username",
+      "value": "admin"
+    },
+    {
+      "key": "password",
+      "value": "admin"
+    },
+    {
+      "key": "tenant_id",
+      "value": ""
+    },
+    {
+      "key": "id",
+      "value": "00000000-0000-0000-0000-000000000001"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "otp",
+      "value": "123456"
+    },
+    {
+      "key": "eleveId",
+      "value": "00000000-0000-0000-0000-000000000101"
+    },
+    {
+      "key": "parentId",
+      "value": "00000000-0000-0000-0000-000000000102"
+    },
+    {
+      "key": "enseignantId",
+      "value": "00000000-0000-0000-0000-000000000103"
+    },
+    {
+      "key": "classeId",
+      "value": "00000000-0000-0000-0000-000000000201"
+    },
+    {
+      "key": "matiereId",
+      "value": "00000000-0000-0000-0000-000000000202"
+    },
+    {
+      "key": "coursId",
+      "value": "00000000-0000-0000-0000-000000000203"
+    },
+    {
+      "key": "salleId",
+      "value": "00000000-0000-0000-0000-000000000204"
+    },
+    {
+      "key": "batimentId",
+      "value": "00000000-0000-0000-0000-000000000205"
+    },
+    {
+      "key": "niveauId",
+      "value": "00000000-0000-0000-0000-000000000206"
+    },
+    {
+      "key": "cycleId",
+      "value": "00000000-0000-0000-0000-000000000207"
+    },
+    {
+      "key": "anneeAcademiqueId",
+      "value": "00000000-0000-0000-0000-000000000208"
+    },
+    {
+      "key": "noteId",
+      "value": "00000000-0000-0000-0000-000000000301"
+    },
+    {
+      "key": "absenceId",
+      "value": "00000000-0000-0000-0000-000000000302"
+    },
+    {
+      "key": "appelId",
+      "value": "00000000-0000-0000-0000-000000000303"
+    },
+    {
+      "key": "inscriptionId",
+      "value": "00000000-0000-0000-0000-000000000401"
+    },
+    {
+      "key": "bulletinId",
+      "value": "00000000-0000-0000-0000-000000000501"
+    },
+    {
+      "key": "page",
+      "value": "0"
+    },
+    {
+      "key": "size",
+      "value": "20"
+    },
+    {
+      "key": "sortBy",
+      "value": "id"
+    },
+    {
+      "key": "asc",
+      "value": "true"
+    },
+    {
+      "key": "statut",
+      "value": "EN_ATTENTE"
+    },
+    {
+      "key": "actif",
+      "value": "true"
+    },
+    {
+      "key": "nom",
+      "value": "Noura School"
+    },
+    {
+      "key": "slug",
+      "value": "default"
+    },
+    {
+      "key": "debut",
+      "value": "2026-05-01T00:00:00"
+    },
+    {
+      "key": "fin",
+      "value": "2026-05-31T23:59:59"
+    }
   ],
   "item": [
     {
       "name": "Auth",
       "item": [
         {
-          "name": "Login",
+          "name": "Login /login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/auth/login",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"login\": \"{{username}}\",\n  \"password\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
           "event": [
             {
               "listen": "test",
               "script": {
+                "type": "text/javascript",
                 "exec": [
                   "if (pm.response.code === 200) {",
-                  "    var json = pm.response.json();",
-                  "    pm.collectionVariables.set('access_token', json.accessToken);",
-                  "    pm.collectionVariables.set('refresh_token', json.refreshToken);",
-                  "    pm.test('Tokens enregistrés', function() {",
-                  "        pm.expect(json.accessToken).to.be.a('string');",
-                  "        pm.expect(json.refreshToken).to.be.a('string');",
-                  "    });",
+                  "  const json = pm.response.json();",
+                  "  pm.collectionVariables.set('access_token', json.accessToken);",
+                  "  pm.collectionVariables.set('refresh_token', json.refreshToken);",
                   "}",
-                  "pm.test('Status 200', function() { pm.response.to.have.status(200); });"
-                ],
-                "type": "text/javascript"
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });"
+                ]
               }
             }
-          ],
-          "request": {
-            "auth": { "type": "noauth" },
-            "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"username\": \"{{username}}\",\n    \"password\": \"{{password}}\"\n}"
-            },
-            "url": "{{base_url}}/api/auth/login"
-          }
+          ]
         },
         {
-          "name": "Refresh",
+          "name": "Refresh token /refresh",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/auth/refresh",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refresh_token}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
           "event": [
             {
               "listen": "test",
               "script": {
+                "type": "text/javascript",
                 "exec": [
                   "if (pm.response.code === 200) {",
-                  "    var json = pm.response.json();",
-                  "    pm.collectionVariables.set('access_token', json.accessToken);",
-                  "    pm.collectionVariables.set('refresh_token', json.refreshToken);",
-                  "}",
-                  "pm.test('Status 200', function() { pm.response.to.have.status(200); });"
-                ],
-                "type": "text/javascript"
+                  "  const json = pm.response.json();",
+                  "  pm.collectionVariables.set('access_token', json.accessToken);",
+                  "  pm.collectionVariables.set('refresh_token', json.refreshToken);",
+                  "}"
+                ]
               }
             }
-          ],
+          ]
+        },
+        {
+          "name": "Utilisateur courant /me",
           "request": {
-            "auth": { "type": "noauth" },
-            "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"refreshToken\": \"{{refresh_token}}\"\n}"
-            },
-            "url": "{{base_url}}/api/auth/refresh"
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/auth/me"
           }
         },
         {
-          "name": "Logout",
+          "name": "Logout /logout",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "url": "{{base_url}}/api/auth/logout"
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/auth/logout"
+          }
+        },
+        {
+          "name": "Forgot Password /forgot-password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/auth/forgot-password",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Reset Password /reset-password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/auth/reset-password",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{token}}\",\n  \"newPassword\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Change Password /change-password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/auth/change-password",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"oldPassword\": \"{{password}}\",\n  \"newPassword\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
           }
         }
       ]
     },
     {
       "name": "Health",
-      "request": {
-        "auth": { "type": "noauth" },
-        "method": "GET",
-        "url": "{{base_url}}/health"
-      }
-    },
-    {
-      "name": "Admin - Users",
       "item": [
-        { "name": "Liste users", "request": { "method": "GET", "url": "{{base_url}}/api/admin/users" } },
-        { "name": "User par ID", "request": { "method": "GET", "url": "{{base_url}}/api/admin/users/{{id}}" } },
-        { "name": "Créer user", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"username\": \"nouveau_user\",\n    \"email\": \"user@example.com\",\n    \"password\": \"password\",\n    \"role\": \"ELEVE\"\n}" }, "url": "{{base_url}}/api/admin/users" } },
-        { "name": "Modifier user", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"username\": \"user_modifie\",\n    \"email\": \"user@example.com\",\n    \"role\": \"ELEVE\"\n}" }, "url": "{{base_url}}/api/admin/users/{{id}}" } },
-        { "name": "Supprimer user", "request": { "method": "DELETE", "url": "{{base_url}}/api/admin/users/{{id}}" } }
+        {
+          "name": "Health check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/health",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "OpenAPI JSON",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/q/openapi",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Swagger UI",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/q/swagger-ui",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        }
       ]
     },
     {
-      "name": "Admin - Élèves",
+      "name": "API v1 - Absence Eleve",
       "item": [
-        { "name": "Liste élèves", "request": { "method": "GET", "url": "{{base_url}}/api/admin/eleves?page=0&size=20&sortBy=id&asc=true" } },
-        { "name": "Élève par ID", "request": { "method": "GET", "url": "{{base_url}}/api/admin/eleves/{{id}}" } },
-        { "name": "Créer élève", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"userId\": 1,\n    \"nom\": \"Dupont\",\n    \"prenom\": \"Jean\",\n    \"dateNaissance\": \"2010-05-15\",\n    \"genre\": \"MASCULIN\",\n    \"classeId\": 1\n}" }, "url": "{{base_url}}/api/admin/eleves" } },
-        { "name": "Modifier élève", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"nom\": \"Dupont\",\n    \"prenom\": \"Jean\",\n    \"dateNaissance\": \"2010-05-15\",\n    \"genre\": \"MASCULIN\",\n    \"classeId\": 1\n}" }, "url": "{{base_url}}/api/admin/eleves/{{id}}" } },
-        { "name": "Supprimer élève", "request": { "method": "DELETE", "url": "{{base_url}}/api/admin/eleves/{{id}}" } }
+        {
+          "name": "Lister",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/absences-eleves?eleveId={{eleveId}}"
+          }
+        },
+        {
+          "name": "Consulter",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/absences-eleves/{{id}}"
+          }
+        },
+        {
+          "name": "Créer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/absences-eleves",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"eleveId\": \"{{eleveId}}\",\n  \"date\": \"2026-05-14\",\n  \"typeAbsence\": \"JUSTIFIEE\",\n  \"justifiee\": true,\n  \"motif\": \"Exemple de contenu\",\n  \"documentJustificatifUrl\": \"Exemple documentJustificatifUrl\",\n  \"declaredBy\": \"{{id}}\",\n  \"statut\": \"EN_ATTENTE\",\n  \"approuvePar\": \"{{id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Approuver /{id}/approuver",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/absences-eleves/{{id}}/approuver"
+          }
+        },
+        {
+          "name": "Rejeter /{id}/rejeter",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/absences-eleves/{{id}}/rejeter"
+          }
+        }
       ]
     },
     {
-      "name": "Admin - Classes",
+      "name": "API v1 - Absence Personnel",
       "item": [
-        { "name": "Liste classes", "request": { "method": "GET", "url": "{{base_url}}/api/admin/classes" } },
-        { "name": "Classe par ID", "request": { "method": "GET", "url": "{{base_url}}/api/admin/classes/{{id}}" } },
-        { "name": "Créer classe", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"nom\": \"6ème A\",\n    \"capacite\": 30\n}" }, "url": "{{base_url}}/api/admin/classes" } },
-        { "name": "Modifier classe", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"nom\": \"6ème A\",\n    \"capacite\": 32\n}" }, "url": "{{base_url}}/api/admin/classes/{{id}}" } },
-        { "name": "Supprimer classe", "request": { "method": "DELETE", "url": "{{base_url}}/api/admin/classes/{{id}}" } }
+        {
+          "name": "Créer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/absences-personnel",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"utilisateurId\": \"{{id}}\",\n  \"dateDebut\": \"2026-05-14\",\n  \"dateFin\": \"2026-05-14\",\n  \"motif\": \"Exemple de contenu\",\n  \"typeAbsence\": \"JUSTIFIEE\",\n  \"justificatifUrl\": \"Exemple justificatifUrl\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Lister",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/absences-personnel"
+          }
+        },
+        {
+          "name": "Consulter",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/absences-personnel/{{id}}"
+          }
+        },
+        {
+          "name": "Valider /{id}/valider",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/absences-personnel/{{id}}/valider"
+          }
+        },
+        {
+          "name": "Refuser /{id}/refuser",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/absences-personnel/{{id}}/refuser"
+          }
+        }
       ]
     },
     {
-      "name": "Admin - Enseignants",
+      "name": "API v1 - Annee Academique",
       "item": [
-        { "name": "Liste enseignants", "request": { "method": "GET", "url": "{{base_url}}/api/admin/enseignants" } },
-        { "name": "Enseignant par ID", "request": { "method": "GET", "url": "{{base_url}}/api/admin/enseignants/{{id}}" } },
-        { "name": "Créer enseignant", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"userId\": 1,\n    \"nom\": \"Martin\",\n    \"prenom\": \"Marie\",\n    \"specialite\": \"Mathématiques\"\n}" }, "url": "{{base_url}}/api/admin/enseignants" } },
-        { "name": "Modifier enseignant", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"nom\": \"Martin\",\n    \"prenom\": \"Marie\",\n    \"specialite\": \"Mathématiques\"\n}" }, "url": "{{base_url}}/api/admin/enseignants/{{id}}" } },
-        { "name": "Supprimer enseignant", "request": { "method": "DELETE", "url": "{{base_url}}/api/admin/enseignants/{{id}}" } }
+        {
+          "name": "Lister",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/annees-academiques"
+          }
+        },
+        {
+          "name": "Find Courante /courante",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/annees-academiques/courante"
+          }
+        },
+        {
+          "name": "Consulter",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/annees-academiques/{{id}}"
+          }
+        },
+        {
+          "name": "Créer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/annees-academiques",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"libelle\": \"2025-2026\",\n  \"dateDebut\": \"2026-05-14\",\n  \"dateFin\": \"2026-05-14\",\n  \"estCourante\": true,\n  \"actif\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Modifier",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/annees-academiques/{{id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"libelle\": \"2025-2026\",\n  \"dateDebut\": \"2026-05-14\",\n  \"dateFin\": \"2026-05-14\",\n  \"estCourante\": true,\n  \"actif\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Supprimer",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/annees-academiques/{{id}}"
+          }
+        },
+        {
+          "name": "Activer /{id}/activer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/annees-academiques/{{id}}/activer"
+          }
+        }
       ]
     },
     {
-      "name": "Admin - Parents",
+      "name": "API v1 - Annonce",
       "item": [
-        { "name": "Liste parents", "request": { "method": "GET", "url": "{{base_url}}/api/admin/parents" } },
-        { "name": "Parent par ID", "request": { "method": "GET", "url": "{{base_url}}/api/admin/parents/{{id}}" } },
-        { "name": "Créer parent", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"userId\": 1,\n    \"nom\": \"Dupont\",\n    \"prenom\": \"Pierre\",\n    \"telephone\": \"+221771234567\",\n    \"email\": \"parent@example.com\"\n}" }, "url": "{{base_url}}/api/admin/parents" } },
-        { "name": "Modifier parent", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"nom\": \"Dupont\",\n    \"prenom\": \"Pierre\",\n    \"telephone\": \"+221771234567\",\n    \"email\": \"parent@example.com\"\n}" }, "url": "{{base_url}}/api/admin/parents/{{id}}" } },
-        { "name": "Supprimer parent", "request": { "method": "DELETE", "url": "{{base_url}}/api/admin/parents/{{id}}" } }
+        {
+          "name": "Lister",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/annonces"
+          }
+        },
+        {
+          "name": "Consulter",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/annonces/{{id}}"
+          }
+        },
+        {
+          "name": "Créer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/annonces",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titre\": \"Annonce de rentrée\",\n  \"contenu\": \"Exemple de contenu\",\n  \"dateDebut\": \"2026-05-14\",\n  \"dateFin\": \"2026-05-14\",\n  \"actif\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Modifier",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/annonces/{{id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titre\": \"Annonce de rentrée\",\n  \"contenu\": \"Exemple de contenu\",\n  \"dateDebut\": \"2026-05-14\",\n  \"dateFin\": \"2026-05-14\",\n  \"actif\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Supprimer",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/annonces/{{id}}"
+          }
+        }
       ]
     },
     {
-      "name": "Admin - Matières",
+      "name": "API v1 - Batiment",
       "item": [
-        { "name": "Liste matières", "request": { "method": "GET", "url": "{{base_url}}/api/admin/matieres" } },
-        { "name": "Matière par ID", "request": { "method": "GET", "url": "{{base_url}}/api/admin/matieres/{{id}}" } },
-        { "name": "Créer matière", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"nom\": \"Mathématiques\",\n    \"coefficient\": 3\n}" }, "url": "{{base_url}}/api/admin/matieres" } },
-        { "name": "Modifier matière", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"nom\": \"Mathématiques\",\n    \"coefficient\": 4\n}" }, "url": "{{base_url}}/api/admin/matieres/{{id}}" } },
-        { "name": "Supprimer matière", "request": { "method": "DELETE", "url": "{{base_url}}/api/admin/matieres/{{id}}" } }
+        {
+          "name": "Lister",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/batiments"
+          }
+        },
+        {
+          "name": "Consulter",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/batiments/{{id}}"
+          }
+        },
+        {
+          "name": "Get Salles /{id}/salles",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/batiments/{{id}}/salles"
+          }
+        },
+        {
+          "name": "Créer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/batiments",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Diop\",\n  \"description\": \"Exemple de contenu\",\n  \"actif\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Modifier",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/batiments/{{id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Diop\",\n  \"description\": \"Exemple de contenu\",\n  \"actif\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Supprimer",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/batiments/{{id}}"
+          }
+        }
       ]
     },
     {
-      "name": "Admin - Matières-Classes",
+      "name": "API v1 - Classe",
       "item": [
-        { "name": "Liste matières-classes", "request": { "method": "GET", "url": "{{base_url}}/api/admin/matieres-classes" } },
-        { "name": "Matière-Classe par ID", "request": { "method": "GET", "url": "{{base_url}}/api/admin/matieres-classes/{{id}}" } },
-        { "name": "Créer matière-classe", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"matiereId\": 1,\n    \"classeId\": 1,\n    \"enseignantId\": 1\n}" }, "url": "{{base_url}}/api/admin/matieres-classes" } },
-        { "name": "Modifier matière-classe", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"matiereId\": 1,\n    \"classeId\": 1,\n    \"enseignantId\": 1\n}" }, "url": "{{base_url}}/api/admin/matieres-classes/{{id}}" } },
-        { "name": "Supprimer matière-classe", "request": { "method": "DELETE", "url": "{{base_url}}/api/admin/matieres-classes/{{id}}" } }
+        {
+          "name": "Lister",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/classes?page={{page}}&size={{size}}"
+          }
+        },
+        {
+          "name": "Consulter",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/classes/{{id}}"
+          }
+        },
+        {
+          "name": "Créer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/classes",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Diop\",\n  \"niveau\": \"Exemple niveau\",\n  \"anneeScolaire\": \"2025-2026\",\n  \"effectifMax\": 30,\n  \"salleClasse\": \"A101\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Modifier",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/classes/{{id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Diop\",\n  \"niveau\": \"Exemple niveau\",\n  \"anneeScolaire\": \"2025-2026\",\n  \"effectifMax\": 30,\n  \"salleClasse\": \"A101\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Supprimer",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/classes/{{id}}"
+          }
+        }
       ]
     },
     {
-      "name": "Admin - Calendrier scolaire",
+      "name": "API v1 - Convocation",
       "item": [
-        { "name": "Liste calendrier", "request": { "method": "GET", "url": "{{base_url}}/api/admin/calendrier-scolaire" } },
-        { "name": "Événement par ID", "request": { "method": "GET", "url": "{{base_url}}/api/admin/calendrier-scolaire/{{id}}" } },
-        { "name": "Créer événement", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"date\": \"2025-03-15\",\n    \"typeEvenement\": \"CONGE\",\n    \"description\": \"Jour férié\"\n}" }, "url": "{{base_url}}/api/admin/calendrier-scolaire" } },
-        { "name": "Modifier événement", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"date\": \"2025-03-15\",\n    \"typeEvenement\": \"CONGE\",\n    \"description\": \"Jour férié\"\n}" }, "url": "{{base_url}}/api/admin/calendrier-scolaire/{{id}}" } },
-        { "name": "Supprimer événement", "request": { "method": "DELETE", "url": "{{base_url}}/api/admin/calendrier-scolaire/{{id}}" } }
+        {
+          "name": "Créer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/convocations",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"parentId\": \"{{parentId}}\",\n  \"eleveId\": \"{{eleveId}}\",\n  \"motif\": \"Exemple de contenu\",\n  \"dateConvocation\": \"2026-05-14T08:00:00\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Lister",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/convocations"
+          }
+        },
+        {
+          "name": "Consulter",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/convocations/{{id}}"
+          }
+        },
+        {
+          "name": "Update Compte Rendu /{id}/compte-rendu",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/convocations/{{id}}/compte-rendu"
+          }
+        },
+        {
+          "name": "Supprimer",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/convocations/{{id}}"
+          }
+        }
       ]
     },
     {
-      "name": "Admin - Emplois du temps",
+      "name": "API v1 - Cours",
       "item": [
-        { "name": "Liste emplois du temps", "request": { "method": "GET", "url": "{{base_url}}/api/admin/emplois-du-temps" } },
-        { "name": "Emploi par ID", "request": { "method": "GET", "url": "{{base_url}}/api/admin/emplois-du-temps/{{id}}" } },
-        { "name": "Créer emploi", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"matiereClasseId\": 1,\n    \"jourSemaine\": \"LUNDI\",\n    \"heureDebut\": \"08:00\",\n    \"heureFin\": \"09:00\",\n    \"salle\": \"A101\"\n}" }, "url": "{{base_url}}/api/admin/emplois-du-temps" } },
-        { "name": "Modifier emploi", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"matiereClasseId\": 1,\n    \"jourSemaine\": \"LUNDI\",\n    \"heureDebut\": \"08:00\",\n    \"heureFin\": \"09:00\",\n    \"salle\": \"A101\"\n}" }, "url": "{{base_url}}/api/admin/emplois-du-temps/{{id}}" } },
-        { "name": "Supprimer emploi", "request": { "method": "DELETE", "url": "{{base_url}}/api/admin/emplois-du-temps/{{id}}" } }
+        {
+          "name": "Lister",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/cours?classeId={{classeId}}"
+          }
+        },
+        {
+          "name": "Consulter",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/cours/{{id}}"
+          }
+        },
+        {
+          "name": "Créer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/cours",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"matiereId\": \"{{matiereId}}\",\n  \"professeurId\": \"{{id}}\",\n  \"classeId\": \"{{classeId}}\",\n  \"anneeAcademiqueId\": \"{{anneeAcademiqueId}}\",\n  \"volumeHoraireHebdo\": 12.5,\n  \"coefficient\": 12.5\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Modifier",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/cours/{{id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"matiereId\": \"{{matiereId}}\",\n  \"professeurId\": \"{{id}}\",\n  \"classeId\": \"{{classeId}}\",\n  \"anneeAcademiqueId\": \"{{anneeAcademiqueId}}\",\n  \"volumeHoraireHebdo\": 12.5,\n  \"coefficient\": 12.5\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Supprimer",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/cours/{{id}}"
+          }
+        }
       ]
     },
     {
-      "name": "Admin - Bulletins",
+      "name": "API v1 - Cycle",
       "item": [
-        { "name": "Liste bulletins", "request": { "method": "GET", "url": "{{base_url}}/api/admin/bulletins?page=0&size=20&sortBy=id&asc=true" } },
-        { "name": "Bulletin par ID", "request": { "method": "GET", "url": "{{base_url}}/api/admin/bulletins/{{id}}" } },
-        { "name": "Télécharger un bulletin (PDF)", "request": { "method": "GET", "url": "{{base_url}}/api/admin/bulletins/{{id}}/download?format=pdf" } },
-        { "name": "Télécharger un bulletin (Word)", "request": { "method": "GET", "url": "{{base_url}}/api/admin/bulletins/{{id}}/download?format=word" } },
-        { "name": "Télécharger un bulletin (Excel)", "request": { "method": "GET", "url": "{{base_url}}/api/admin/bulletins/{{id}}/download?format=excel" } },
-        { "name": "Télécharger bulletins par classe (ZIP)", "request": { "method": "GET", "url": "{{base_url}}/api/admin/bulletins/download/by-classe?classeId={{classeId}}&anneeScolaire=2024-2025&trimestre=Trimestre 1" } },
-        { "name": "Télécharger tous les bulletins école (ZIP)", "request": { "method": "GET", "url": "{{base_url}}/api/admin/bulletins/download/all?anneeScolaire=2024-2025&trimestre=Trimestre 1" } },
-        { "name": "Créer bulletin", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"eleveId\": \"{{eleveId}}\",\n    \"trimestre\": \"Trimestre 1\",\n    \"anneeScolaire\": \"2024-2025\",\n    \"moyenne\": 12.5,\n    \"moyenneClasse\": 11.2,\n    \"rang\": 3,\n    \"totalEleves\": 25,\n    \"appreciation\": \"Bon trimestre.\",\n    \"nombreAbsences\": 0,\n    \"nombreRetards\": 1\n}" }, "url": "{{base_url}}/api/admin/bulletins" } },
-        { "name": "Modifier bulletin", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"eleveId\": \"{{eleveId}}\",\n    \"trimestre\": \"Trimestre 1\",\n    \"anneeScolaire\": \"2024-2025\",\n    \"moyenne\": 13.0,\n    \"moyenneClasse\": 11.2,\n    \"rang\": 2,\n    \"totalEleves\": 25,\n    \"appreciation\": \"Très bon trimestre.\",\n    \"nombreAbsences\": 0,\n    \"nombreRetards\": 0\n}" }, "url": "{{base_url}}/api/admin/bulletins/{{id}}" } },
-        { "name": "Supprimer bulletin", "request": { "method": "DELETE", "url": "{{base_url}}/api/admin/bulletins/{{id}}" } }
+        {
+          "name": "Lister",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/cycles"
+          }
+        },
+        {
+          "name": "Consulter",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/cycles/{{id}}"
+          }
+        },
+        {
+          "name": "Créer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/cycles",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"CODE-001\",\n  \"libelle\": \"2025-2026\",\n  \"actif\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Modifier",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/cycles/{{id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"CODE-001\",\n  \"libelle\": \"2025-2026\",\n  \"actif\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Supprimer",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/cycles/{{id}}"
+          }
+        }
       ]
     },
     {
-      "name": "Admin - Rapports",
+      "name": "API v1 - Eleve",
       "item": [
-        { "name": "Rapport trimestre (PDF)", "request": { "method": "GET", "url": "{{base_url}}/api/admin/reports/rapport-trimestre?anneeScolaire=2024-2025&trimestre=Trimestre 1" } }
+        {
+          "name": "Lister",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/eleves?page={{page}}&size={{size}}&sortBy={{sortBy}}&asc={{asc}}"
+          }
+        },
+        {
+          "name": "Consulter",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/eleves/{{id}}"
+          }
+        },
+        {
+          "name": "Créer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/eleves",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"firstName\": \"Awa\",\n  \"lastName\": \"Diop\",\n  \"telephone\": \"+221771234567\",\n  \"adresse\": \"Dakar\",\n  \"matricule\": \"MAT-2026-001\",\n  \"dateNaissance\": \"2026-05-14\",\n  \"lieuNaissance\": \"Exemple lieuNaissance\",\n  \"genre\": \"MASCULIN\",\n  \"numeroUrgence\": \"+221771234567\",\n  \"photoUrl\": \"Exemple photoUrl\",\n  \"classeId\": \"{{classeId}}\",\n  \"parentIds\": [\n    \"{{parentId}}\"\n  ],\n  \"dateCreation\": \"2026-05-14\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Modifier",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/eleves/{{id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"firstName\": \"Awa\",\n  \"lastName\": \"Diop\",\n  \"telephone\": \"+221771234567\",\n  \"adresse\": \"Dakar\",\n  \"active\": true,\n  \"matricule\": \"MAT-2026-001\",\n  \"dateNaissance\": \"2026-05-14\",\n  \"lieuNaissance\": \"Exemple lieuNaissance\",\n  \"genre\": \"MASCULIN\",\n  \"numeroUrgence\": \"+221771234567\",\n  \"photoUrl\": \"Exemple photoUrl\",\n  \"classeId\": \"{{classeId}}\",\n  \"parentIds\": [\n    \"{{parentId}}\"\n  ],\n  \"dateCreation\": \"2026-05-14\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Modifier partiellement",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/eleves/{{id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"firstName\": \"Awa\",\n  \"lastName\": \"Diop\",\n  \"telephone\": \"+221771234567\",\n  \"adresse\": \"Dakar\",\n  \"active\": true,\n  \"matricule\": \"MAT-2026-001\",\n  \"dateNaissance\": \"2026-05-14\",\n  \"lieuNaissance\": \"Exemple lieuNaissance\",\n  \"genre\": \"MASCULIN\",\n  \"numeroUrgence\": \"+221771234567\",\n  \"photoUrl\": \"Exemple photoUrl\",\n  \"classeId\": \"{{classeId}}\",\n  \"parentIds\": [\n    \"{{parentId}}\"\n  ],\n  \"dateCreation\": \"2026-05-14\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Supprimer",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/eleves/{{id}}"
+          }
+        }
       ]
     },
     {
-      "name": "Admin - Notes",
+      "name": "API v1 - Emploi Du Temps",
       "item": [
-        { "name": "Liste notes", "request": { "method": "GET", "url": "{{base_url}}/api/admin/notes" } },
-        { "name": "Note par ID", "request": { "method": "GET", "url": "{{base_url}}/api/admin/notes/{{id}}" } },
-        { "name": "Créer note", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"eleveId\": 1,\n    \"matiereClasseId\": 1,\n    \"valeur\": 14.5,\n    \"typeEvaluation\": \"CONTROLE\",\n    \"periode\": \"Trimestre 1\"\n}" }, "url": "{{base_url}}/api/admin/notes" } },
-        { "name": "Modifier note", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"eleveId\": 1,\n    \"matiereClasseId\": 1,\n    \"valeur\": 15.0,\n    \"typeEvaluation\": \"CONTROLE\",\n    \"periode\": \"Trimestre 1\"\n}" }, "url": "{{base_url}}/api/admin/notes/{{id}}" } },
-        { "name": "Supprimer note", "request": { "method": "DELETE", "url": "{{base_url}}/api/admin/notes/{{id}}" } }
+        {
+          "name": "Lister",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/emplois-du-temps?classeId={{classeId}}"
+          }
+        },
+        {
+          "name": "Consulter",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/emplois-du-temps/{{id}}"
+          }
+        },
+        {
+          "name": "Créer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/emplois-du-temps",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"classeId\": \"{{classeId}}\",\n  \"matiereId\": \"{{matiereId}}\",\n  \"enseignantId\": \"{{enseignantId}}\",\n  \"jourSemaine\": \"LUNDI\",\n  \"heureDebut\": \"08:00:00\",\n  \"heureFin\": \"09:00:00\",\n  \"salle\": \"A101\",\n  \"anneeScolaire\": \"2025-2026\",\n  \"dateDebutValidite\": \"2026-05-14\",\n  \"dateFinValidite\": \"2026-05-14\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Modifier",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/emplois-du-temps/{{id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"classeId\": \"{{classeId}}\",\n  \"matiereId\": \"{{matiereId}}\",\n  \"enseignantId\": \"{{enseignantId}}\",\n  \"jourSemaine\": \"LUNDI\",\n  \"heureDebut\": \"08:00:00\",\n  \"heureFin\": \"09:00:00\",\n  \"salle\": \"A101\",\n  \"anneeScolaire\": \"2025-2026\",\n  \"dateDebutValidite\": \"2026-05-14\",\n  \"dateFinValidite\": \"2026-05-14\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Supprimer",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/emplois-du-temps/{{id}}"
+          }
+        }
       ]
     },
     {
-      "name": "Admin - Absences élèves",
+      "name": "API v1 - Enseignant",
       "item": [
-        { "name": "Liste absences", "request": { "method": "GET", "url": "{{base_url}}/api/admin/absences-eleves" } },
-        { "name": "Absence par ID", "request": { "method": "GET", "url": "{{base_url}}/api/admin/absences-eleves/{{id}}" } },
-        { "name": "Créer absence", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"eleveId\": 1,\n    \"date\": \"2025-02-19\",\n    \"typeAbsence\": \"JUSTIFIEE\",\n    \"motif\": \"Maladie\"\n}" }, "url": "{{base_url}}/api/admin/absences-eleves" } },
-        { "name": "Modifier absence", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"eleveId\": 1,\n    \"date\": \"2025-02-19\",\n    \"typeAbsence\": \"JUSTIFIEE\",\n    \"motif\": \"Maladie\"\n}" }, "url": "{{base_url}}/api/admin/absences-eleves/{{id}}" } },
-        { "name": "Supprimer absence", "request": { "method": "DELETE", "url": "{{base_url}}/api/admin/absences-eleves/{{id}}" } }
+        {
+          "name": "Lister",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/enseignants?page={{page}}&size={{size}}"
+          }
+        },
+        {
+          "name": "Consulter",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/enseignants/{{id}}"
+          }
+        },
+        {
+          "name": "Créer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/enseignants",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"firstName\": \"Awa\",\n  \"lastName\": \"Diop\",\n  \"telephone\": \"+221771234567\",\n  \"adresse\": \"Dakar\",\n  \"matricule\": \"MAT-2026-001\",\n  \"specialite\": \"Mathématiques\",\n  \"dateEmbauche\": \"2026-05-14\",\n  \"numeroCNPS\": \"+221771234567\",\n  \"numeroSecuriteSociale\": \"+221771234567\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Modifier",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/enseignants/{{id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"firstName\": \"Awa\",\n  \"lastName\": \"Diop\",\n  \"telephone\": \"+221771234567\",\n  \"adresse\": \"Dakar\",\n  \"active\": true,\n  \"matricule\": \"MAT-2026-001\",\n  \"specialite\": \"Mathématiques\",\n  \"dateEmbauche\": \"2026-05-14\",\n  \"numeroCNPS\": \"+221771234567\",\n  \"numeroSecuriteSociale\": \"+221771234567\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Modifier partiellement",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/enseignants/{{id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"firstName\": \"Awa\",\n  \"lastName\": \"Diop\",\n  \"telephone\": \"+221771234567\",\n  \"adresse\": \"Dakar\",\n  \"active\": true,\n  \"matricule\": \"MAT-2026-001\",\n  \"specialite\": \"Mathématiques\",\n  \"dateEmbauche\": \"2026-05-14\",\n  \"numeroCNPS\": \"+221771234567\",\n  \"numeroSecuriteSociale\": \"+221771234567\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Supprimer",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/enseignants/{{id}}"
+          }
+        }
       ]
     },
     {
-      "name": "Admin - Réclamations",
+      "name": "API v1 - Etablissement Stats",
       "item": [
-        { "name": "Liste réclamations", "request": { "method": "GET", "url": "{{base_url}}/api/admin/reclamations" } },
-        { "name": "Réclamation par ID", "request": { "method": "GET", "url": "{{base_url}}/api/admin/reclamations/{{id}}" } },
-        { "name": "Créer réclamation", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"eleveId\": 1,\n    \"typeReclamation\": \"NOTE\",\n    \"sujet\": \"Contestation note\",\n    \"description\": \"Détail de la réclamation\"\n}" }, "url": "{{base_url}}/api/admin/reclamations" } },
-        { "name": "Modifier réclamation", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"eleveId\": 1,\n    \"typeReclamation\": \"NOTE\",\n    \"sujet\": \"Contestation note\",\n    \"description\": \"Détail\",\n    \"statut\": \"TRAITEE\"\n}" }, "url": "{{base_url}}/api/admin/reclamations/{{id}}" } },
-        { "name": "Supprimer réclamation", "request": { "method": "DELETE", "url": "{{base_url}}/api/admin/reclamations/{{id}}" } }
+        {
+          "name": "Get Stats",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/stats/etablissement"
+          }
+        }
       ]
     },
     {
-      "name": "Admin - Paiements",
+      "name": "API v1 - Inscription",
       "item": [
-        { "name": "Liste paiements", "request": { "method": "GET", "url": "{{base_url}}/api/admin/paiements" } },
-        { "name": "Paiement par ID", "request": { "method": "GET", "url": "{{base_url}}/api/admin/paiements/{{id}}" } },
-        { "name": "Créer paiement", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"eleveId\": 1,\n    \"montant\": 150000,\n    \"typePaiement\": \"SCOLARITE\",\n    \"modePaiement\": \"ESPECES\",\n    \"datePaiement\": \"2025-02-19\"\n}" }, "url": "{{base_url}}/api/admin/paiements" } },
-        { "name": "Modifier paiement", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"eleveId\": 1,\n    \"montant\": 150000,\n    \"typePaiement\": \"SCOLARITE\",\n    \"modePaiement\": \"ESPECES\",\n    \"statut\": \"VALIDE\"\n}" }, "url": "{{base_url}}/api/admin/paiements/{{id}}" } },
-        { "name": "Supprimer paiement", "request": { "method": "DELETE", "url": "{{base_url}}/api/admin/paiements/{{id}}" } }
+        {
+          "name": "Créer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/inscriptions",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"eleveId\": \"{{eleveId}}\",\n  \"classeId\": \"{{classeId}}\",\n  \"anneeAcademiqueId\": \"{{anneeAcademiqueId}}\",\n  \"parentIds\": [\n    \"{{parentId}}\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Lister",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/inscriptions"
+          }
+        },
+        {
+          "name": "Consulter",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/inscriptions/{{id}}"
+          }
+        },
+        {
+          "name": "Transferer /{id}/transferer",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/inscriptions/{{id}}/transferer"
+          }
+        },
+        {
+          "name": "Supprimer",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/inscriptions/{{id}}"
+          }
+        }
       ]
     },
     {
-      "name": "Caisse",
+      "name": "API v1 - Lien Bulletin",
       "item": [
-        { "name": "Liste paiements", "request": { "method": "GET", "url": "{{base_url}}/api/caisse/paiements" } },
-        { "name": "Paiements par statut", "request": { "method": "GET", "url": "{{base_url}}/api/caisse/paiements/statut/{{statut}}" } },
-        { "name": "Historique paiements", "request": { "method": "GET", "url": "{{base_url}}/api/caisse/paiements/historique?debut=2025-01-01T00:00:00&fin=2025-02-19T23:59:59" } },
-        { "name": "Consulter paiement", "request": { "method": "GET", "url": "{{base_url}}/api/caisse/paiements/{{id}}" } },
-        { "name": "Valider paiement", "request": { "method": "POST", "url": "{{base_url}}/api/caisse/paiements/{{id}}/valider" } }
+        {
+          "name": "Generer /generer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/liens-bulletin/generer",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Consulter /{token}/consulter",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/liens-bulletin/{{token}}/consulter",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Verifier Otp /{token}/verifier-otp",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/liens-bulletin/{{token}}/verifier-otp",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        }
       ]
     },
     {
-      "name": "Enseignant",
+      "name": "API v1 - Lien Paiement",
       "item": [
-        { "name": "Profil", "request": { "method": "GET", "url": "{{base_url}}/api/enseignant/profil" } },
-        { "name": "Classes et matières", "request": { "method": "GET", "url": "{{base_url}}/api/enseignant/classes-matieres" } },
-        { "name": "Emploi du temps", "request": { "method": "GET", "url": "{{base_url}}/api/enseignant/emploi-du-temps" } },
-        { "name": "Liste notes", "request": { "method": "GET", "url": "{{base_url}}/api/enseignant/notes" } },
-        { "name": "Créer note", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"eleveId\": 1,\n    \"matiereClasseId\": 1,\n    \"valeur\": 14.5,\n    \"typeEvaluation\": \"CONTROLE\",\n    \"periode\": \"Trimestre 1\"\n}" }, "url": "{{base_url}}/api/enseignant/notes" } },
-        { "name": "Modifier note", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"eleveId\": 1,\n    \"matiereClasseId\": 1,\n    \"valeur\": 15.0,\n    \"typeEvaluation\": \"CONTROLE\",\n    \"periode\": \"Trimestre 1\"\n}" }, "url": "{{base_url}}/api/enseignant/notes/{{noteId}}" } },
-        { "name": "Bulletins", "request": { "method": "GET", "url": "{{base_url}}/api/enseignant/bulletins" } },
-        { "name": "Déclarer absence", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"date\": \"2025-02-19\",\n    \"typeAbsence\": \"JUSTIFIEE\",\n    \"motif\": \"Formation\"\n}" }, "url": "{{base_url}}/api/enseignant/absences" } },
-        { "name": "Réclamations", "request": { "method": "GET", "url": "{{base_url}}/api/enseignant/reclamations" } }
+        {
+          "name": "Generer /generer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/liens-paiement/generer",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"parentId\": \"{{parentId}}\",\n    \"montantTotal\": 150000,\n    \"mois\": \"Exemple mois\"\n  }\n]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Get Detail /{token}/detail",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/liens-paiement/{{token}}/detail",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Verifier Otp /{token}/verifier-otp",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/liens-paiement/{{token}}/verifier-otp",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Payer /{token}/payer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/liens-paiement/{{token}}/payer",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        }
       ]
     },
     {
-      "name": "Élève",
+      "name": "API v1 - Niveau",
       "item": [
-        { "name": "Profil", "request": { "method": "GET", "url": "{{base_url}}/api/eleve/profil" } },
-        { "name": "Notes", "request": { "method": "GET", "url": "{{base_url}}/api/eleve/notes" } },
-        { "name": "Bulletins", "request": { "method": "GET", "url": "{{base_url}}/api/eleve/bulletins" } },
-        { "name": "Emploi du temps", "request": { "method": "GET", "url": "{{base_url}}/api/eleve/emploi-du-temps" } },
-        { "name": "Absences", "request": { "method": "GET", "url": "{{base_url}}/api/eleve/absences" } },
-        { "name": "Créer réclamation", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n    \"typeReclamation\": \"NOTE\",\n    \"sujet\": \"Contestation\",\n    \"description\": \"Détail\"\n}" }, "url": "{{base_url}}/api/eleve/reclamations" } },
-        { "name": "Notifications", "request": { "method": "GET", "url": "{{base_url}}/api/eleve/notifications" } }
+        {
+          "name": "Lister",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/niveaux?cycleId={{cycleId}}"
+          }
+        },
+        {
+          "name": "Consulter",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/niveaux/{{id}}"
+          }
+        },
+        {
+          "name": "Créer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/niveaux",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cycleId\": \"{{cycleId}}\",\n  \"code\": \"CODE-001\",\n  \"libelle\": \"2025-2026\",\n  \"ordre\": 1,\n  \"actif\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Modifier",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/niveaux/{{id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cycleId\": \"{{cycleId}}\",\n  \"code\": \"CODE-001\",\n  \"libelle\": \"2025-2026\",\n  \"ordre\": 1,\n  \"actif\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Supprimer",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/niveaux/{{id}}"
+          }
+        }
       ]
     },
     {
-      "name": "Parent",
+      "name": "API v1 - Paiement",
       "item": [
-        { "name": "Profil", "request": { "method": "GET", "url": "{{base_url}}/api/parent/profil" } },
-        { "name": "Liste enfants", "request": { "method": "GET", "url": "{{base_url}}/api/parent/enfants" } },
-        { "name": "Profil enfant", "request": { "method": "GET", "url": "{{base_url}}/api/parent/enfants/{{eleveId}}/profil" } },
-        { "name": "Notes enfant", "request": { "method": "GET", "url": "{{base_url}}/api/parent/enfants/{{eleveId}}/notes" } },
-        { "name": "Bulletins enfant", "request": { "method": "GET", "url": "{{base_url}}/api/parent/enfants/{{eleveId}}/bulletins" } },
-        { "name": "Absences enfant", "request": { "method": "GET", "url": "{{base_url}}/api/parent/enfants/{{eleveId}}/absences" } },
-        { "name": "Emploi du temps enfant", "request": { "method": "GET", "url": "{{base_url}}/api/parent/enfants/{{eleveId}}/emploi-du-temps" } },
-        { "name": "Paiements", "request": { "method": "GET", "url": "{{base_url}}/api/parent/paiements" } },
-        { "name": "Notifications", "request": { "method": "GET", "url": "{{base_url}}/api/parent/notifications" } }
+        {
+          "name": "Créer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/paiements",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"eleveId\": \"{{eleveId}}\",\n  \"parentId\": \"{{parentId}}\",\n  \"reference\": \"Exemple reference\",\n  \"montant\": 150000,\n  \"typePaiement\": \"SCOLARITE\",\n  \"modePaiement\": \"ESPECES\",\n  \"statut\": \"EN_ATTENTE\",\n  \"anneeScolaire\": \"2025-2026\",\n  \"trimestre\": \"Trimestre 1\",\n  \"transactionId\": \"{{id}}\",\n  \"description\": \"Exemple de contenu\",\n  \"datePaiement\": \"2026-05-14T08:00:00\",\n  \"validePar\": \"{{id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Lister",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/paiements"
+          }
+        },
+        {
+          "name": "Consulter",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/paiements/{{id}}"
+          }
+        },
+        {
+          "name": "Modifier",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/paiements/{{id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"eleveId\": \"{{eleveId}}\",\n  \"parentId\": \"{{parentId}}\",\n  \"reference\": \"Exemple reference\",\n  \"montant\": 150000,\n  \"typePaiement\": \"SCOLARITE\",\n  \"modePaiement\": \"ESPECES\",\n  \"statut\": \"EN_ATTENTE\",\n  \"anneeScolaire\": \"2025-2026\",\n  \"trimestre\": \"Trimestre 1\",\n  \"transactionId\": \"{{id}}\",\n  \"description\": \"Exemple de contenu\",\n  \"datePaiement\": \"2026-05-14T08:00:00\",\n  \"validePar\": \"{{id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Supprimer",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/paiements/{{id}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "API v1 - Parent",
+      "item": [
+        {
+          "name": "Lister",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/parents?page={{page}}&size={{size}}"
+          }
+        },
+        {
+          "name": "Consulter",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/parents/{{id}}"
+          }
+        },
+        {
+          "name": "Créer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/parents",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"firstName\": \"Awa\",\n  \"lastName\": \"Diop\",\n  \"telephone\": \"+221771234567\",\n  \"adresse\": \"Dakar\",\n  \"profession\": \"Exemple profession\",\n  \"lieuTravail\": \"Exemple lieuTravail\",\n  \"telephoneTravail\": \"+221771234567\",\n  \"lienParente\": \"{{parentId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Modifier",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/parents/{{id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"firstName\": \"Awa\",\n  \"lastName\": \"Diop\",\n  \"telephone\": \"+221771234567\",\n  \"adresse\": \"Dakar\",\n  \"active\": true,\n  \"profession\": \"Exemple profession\",\n  \"lieuTravail\": \"Exemple lieuTravail\",\n  \"telephoneTravail\": \"+221771234567\",\n  \"lienParente\": \"{{parentId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Modifier partiellement",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/parents/{{id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"firstName\": \"Awa\",\n  \"lastName\": \"Diop\",\n  \"telephone\": \"+221771234567\",\n  \"adresse\": \"Dakar\",\n  \"active\": true,\n  \"profession\": \"Exemple profession\",\n  \"lieuTravail\": \"Exemple lieuTravail\",\n  \"telephoneTravail\": \"+221771234567\",\n  \"lienParente\": \"{{parentId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Supprimer",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/parents/{{id}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "API v1 - Personnel",
+      "item": [
+        {
+          "name": "Créer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/personnel",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"utilisateurId\": \"{{id}}\",\n  \"numeroMatricule\": \"+221771234567\",\n  \"typeContrat\": \"Exemple typeContrat\",\n  \"dateEmbauche\": \"2026-05-14\",\n  \"salaire\": 12.5,\n  \"soldeConge\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Lister",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/personnel"
+          }
+        },
+        {
+          "name": "Consulter",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/personnel/{{id}}"
+          }
+        },
+        {
+          "name": "Modifier",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/personnel/{{id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"utilisateurId\": \"{{id}}\",\n  \"numeroMatricule\": \"+221771234567\",\n  \"typeContrat\": \"Exemple typeContrat\",\n  \"dateEmbauche\": \"2026-05-14\",\n  \"salaire\": 12.5,\n  \"soldeConge\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "API v1 - Pointage",
+      "item": [
+        {
+          "name": "Créer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/pointages"
+          }
+        },
+        {
+          "name": "Lister",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/pointages"
+          }
+        },
+        {
+          "name": "Get Rapport /rapport",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/pointages/rapport?debut={{debut}}&fin={{fin}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "API v1 - Salle",
+      "item": [
+        {
+          "name": "Lister",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/salles?batimentId={{batimentId}}"
+          }
+        },
+        {
+          "name": "Consulter",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/salles/{{id}}"
+          }
+        },
+        {
+          "name": "Créer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/salles",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"batimentId\": \"{{batimentId}}\",\n  \"nom\": \"Diop\",\n  \"capacite\": 1,\n  \"typeSalle\": \"A101\",\n  \"actif\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Modifier",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/salles/{{id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"batimentId\": \"{{batimentId}}\",\n  \"nom\": \"Diop\",\n  \"capacite\": 1,\n  \"typeSalle\": \"A101\",\n  \"actif\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Supprimer",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/salles/{{id}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "API v1 - Utilisateur",
+      "item": [
+        {
+          "name": "Lister",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/utilisateurs"
+          }
+        },
+        {
+          "name": "Consulter",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/utilisateurs/{{id}}"
+          }
+        },
+        {
+          "name": "Créer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/utilisateurs",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"firstName\": \"Awa\",\n  \"lastName\": \"Diop\",\n  \"telephone\": \"+221771234567\",\n  \"adresse\": \"Dakar\",\n  \"role\": \"ADMIN\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Modifier",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/utilisateurs/{{id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"firstName\": \"Awa\",\n  \"lastName\": \"Diop\",\n  \"telephone\": \"+221771234567\",\n  \"adresse\": \"Dakar\",\n  \"role\": \"ADMIN\",\n  \"active\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Supprimer",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/utilisateurs/{{id}}"
+          }
+        },
+        {
+          "name": "Reinitialiser Mdp /{id}/reinitialiser-mdp",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/utilisateurs/{{id}}/reinitialiser-mdp",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nouveauMotDePasse\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Assigner Cycles /{id}/cycles",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/utilisateurs/{{id}}/cycles",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cycleIds\": [\n    \"{{cycleId}}\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Retirer Cycle /{id}/cycles/{cycleId}",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/v1/utilisateurs/{{id}}/cycles/{{cycleId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Legacy - Admin Absence Eleve",
+      "item": [
+        {
+          "name": "Lister",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/absences-eleves"
+          }
+        },
+        {
+          "name": "Consulter",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/absences-eleves/{{id}}"
+          }
+        },
+        {
+          "name": "Créer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/absences-eleves",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"eleveId\": \"{{eleveId}}\",\n  \"date\": \"2026-05-14\",\n  \"typeAbsence\": \"JUSTIFIEE\",\n  \"justifiee\": true,\n  \"motif\": \"Exemple de contenu\",\n  \"documentJustificatifUrl\": \"Exemple documentJustificatifUrl\",\n  \"declaredBy\": \"{{id}}\",\n  \"statut\": \"EN_ATTENTE\",\n  \"approuvePar\": \"{{id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Modifier",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/absences-eleves/{{id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"eleveId\": \"{{eleveId}}\",\n  \"date\": \"2026-05-14\",\n  \"typeAbsence\": \"JUSTIFIEE\",\n  \"justifiee\": true,\n  \"motif\": \"Exemple de contenu\",\n  \"documentJustificatifUrl\": \"Exemple documentJustificatifUrl\",\n  \"declaredBy\": \"{{id}}\",\n  \"statut\": \"EN_ATTENTE\",\n  \"approuvePar\": \"{{id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Supprimer",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/absences-eleves/{{id}}"
+          }
+        },
+        {
+          "name": "Approuver /{id}/approuver",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/absences-eleves/{{id}}/approuver"
+          }
+        },
+        {
+          "name": "Rejeter /{id}/rejeter",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/absences-eleves/{{id}}/rejeter"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Legacy - Admin Bulletin",
+      "item": [
+        {
+          "name": "Lister",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/bulletins?page={{page}}&size={{size}}&sortBy={{sortBy}}&asc={{asc}}"
+          }
+        },
+        {
+          "name": "Consulter",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/bulletins/{{id}}"
+          }
+        },
+        {
+          "name": "Download /{id}/download",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/bulletins/{{id}}/download?format={{format}}"
+          }
+        },
+        {
+          "name": "Download By Classe /download/by-classe",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/bulletins/download/by-classe?classeId={{classeId}}&anneeScolaire={{anneeScolaire}}&trimestre={{trimestre}}"
+          }
+        },
+        {
+          "name": "Download All /download/all",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/bulletins/download/all?anneeScolaire={{anneeScolaire}}&trimestre={{trimestre}}"
+          }
+        },
+        {
+          "name": "Créer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/bulletins",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"eleveId\": \"{{eleveId}}\",\n  \"trimestre\": \"Trimestre 1\",\n  \"anneeScolaire\": \"2025-2026\",\n  \"moyenne\": 12.5,\n  \"moyenneClasse\": 12.5,\n  \"rang\": 1,\n  \"totalEleves\": 1,\n  \"appreciation\": \"Exemple appreciation\",\n  \"nombreAbsences\": 1,\n  \"nombreRetards\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Modifier",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/bulletins/{{id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"eleveId\": \"{{eleveId}}\",\n  \"trimestre\": \"Trimestre 1\",\n  \"anneeScolaire\": \"2025-2026\",\n  \"moyenne\": 12.5,\n  \"moyenneClasse\": 12.5,\n  \"rang\": 1,\n  \"totalEleves\": 1,\n  \"appreciation\": \"Exemple appreciation\",\n  \"nombreAbsences\": 1,\n  \"nombreRetards\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Supprimer",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/bulletins/{{id}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Legacy - Admin Calendrier Scolaire",
+      "item": [
+        {
+          "name": "Lister",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/calendrier-scolaire"
+          }
+        },
+        {
+          "name": "Consulter",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/calendrier-scolaire/{{id}}"
+          }
+        },
+        {
+          "name": "Créer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/calendrier-scolaire",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"anneeScolaire\": \"2025-2026\",\n  \"titre\": \"Annonce de rentrée\",\n  \"description\": \"Exemple de contenu\",\n  \"typeEvenement\": \"Exemple typeEvenement\",\n  \"dateDebut\": \"2026-05-14\",\n  \"dateFin\": \"2026-05-14\",\n  \"concerneClasses\": \"Exemple concerneClasses\",\n  \"publier\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Modifier",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/calendrier-scolaire/{{id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"anneeScolaire\": \"2025-2026\",\n  \"titre\": \"Annonce de rentrée\",\n  \"description\": \"Exemple de contenu\",\n  \"typeEvenement\": \"Exemple typeEvenement\",\n  \"dateDebut\": \"2026-05-14\",\n  \"dateFin\": \"2026-05-14\",\n  \"concerneClasses\": \"Exemple concerneClasses\",\n  \"publier\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Supprimer",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/calendrier-scolaire/{{id}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Legacy - Admin Classe",
+      "item": [
+        {
+          "name": "Lister",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/classes"
+          }
+        },
+        {
+          "name": "Consulter",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/classes/{{id}}"
+          }
+        },
+        {
+          "name": "Créer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/classes",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Diop\",\n  \"niveau\": \"Exemple niveau\",\n  \"anneeScolaire\": \"2025-2026\",\n  \"effectifMax\": 30,\n  \"salleClasse\": \"A101\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Modifier",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/classes/{{id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Diop\",\n  \"niveau\": \"Exemple niveau\",\n  \"anneeScolaire\": \"2025-2026\",\n  \"effectifMax\": 30,\n  \"salleClasse\": \"A101\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Supprimer",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/classes/{{id}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Legacy - Admin Eleve",
+      "item": [
+        {
+          "name": "Lister",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/eleves?page={{page}}&size={{size}}&sortBy={{sortBy}}&asc={{asc}}"
+          }
+        },
+        {
+          "name": "Consulter",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/eleves/{{id}}"
+          }
+        },
+        {
+          "name": "Créer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/eleves",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"firstName\": \"Awa\",\n  \"lastName\": \"Diop\",\n  \"telephone\": \"+221771234567\",\n  \"adresse\": \"Dakar\",\n  \"matricule\": \"MAT-2026-001\",\n  \"dateNaissance\": \"2026-05-14\",\n  \"lieuNaissance\": \"Exemple lieuNaissance\",\n  \"genre\": \"MASCULIN\",\n  \"numeroUrgence\": \"+221771234567\",\n  \"photoUrl\": \"Exemple photoUrl\",\n  \"classeId\": \"{{classeId}}\",\n  \"parentIds\": [\n    \"{{parentId}}\"\n  ],\n  \"dateCreation\": \"2026-05-14\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Modifier",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/eleves/{{id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"firstName\": \"Awa\",\n  \"lastName\": \"Diop\",\n  \"telephone\": \"+221771234567\",\n  \"adresse\": \"Dakar\",\n  \"active\": true,\n  \"matricule\": \"MAT-2026-001\",\n  \"dateNaissance\": \"2026-05-14\",\n  \"lieuNaissance\": \"Exemple lieuNaissance\",\n  \"genre\": \"MASCULIN\",\n  \"numeroUrgence\": \"+221771234567\",\n  \"photoUrl\": \"Exemple photoUrl\",\n  \"classeId\": \"{{classeId}}\",\n  \"parentIds\": [\n    \"{{parentId}}\"\n  ],\n  \"dateCreation\": \"2026-05-14\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Supprimer",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/eleves/{{id}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Legacy - Admin Emploi Du Temps",
+      "item": [
+        {
+          "name": "Lister",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/emplois-du-temps"
+          }
+        },
+        {
+          "name": "Consulter",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/emplois-du-temps/{{id}}"
+          }
+        },
+        {
+          "name": "Créer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/emplois-du-temps",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"classeId\": \"{{classeId}}\",\n  \"matiereId\": \"{{matiereId}}\",\n  \"enseignantId\": \"{{enseignantId}}\",\n  \"jourSemaine\": \"LUNDI\",\n  \"heureDebut\": \"08:00:00\",\n  \"heureFin\": \"09:00:00\",\n  \"salle\": \"A101\",\n  \"anneeScolaire\": \"2025-2026\",\n  \"dateDebutValidite\": \"2026-05-14\",\n  \"dateFinValidite\": \"2026-05-14\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Modifier",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/emplois-du-temps/{{id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"classeId\": \"{{classeId}}\",\n  \"matiereId\": \"{{matiereId}}\",\n  \"enseignantId\": \"{{enseignantId}}\",\n  \"jourSemaine\": \"LUNDI\",\n  \"heureDebut\": \"08:00:00\",\n  \"heureFin\": \"09:00:00\",\n  \"salle\": \"A101\",\n  \"anneeScolaire\": \"2025-2026\",\n  \"dateDebutValidite\": \"2026-05-14\",\n  \"dateFinValidite\": \"2026-05-14\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Supprimer",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/emplois-du-temps/{{id}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Legacy - Admin Enseignant",
+      "item": [
+        {
+          "name": "Lister",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/enseignants"
+          }
+        },
+        {
+          "name": "Consulter",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/enseignants/{{id}}"
+          }
+        },
+        {
+          "name": "Créer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/enseignants",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"firstName\": \"Awa\",\n  \"lastName\": \"Diop\",\n  \"telephone\": \"+221771234567\",\n  \"adresse\": \"Dakar\",\n  \"matricule\": \"MAT-2026-001\",\n  \"specialite\": \"Mathématiques\",\n  \"dateEmbauche\": \"2026-05-14\",\n  \"numeroCNPS\": \"+221771234567\",\n  \"numeroSecuriteSociale\": \"+221771234567\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Modifier",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/enseignants/{{id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"firstName\": \"Awa\",\n  \"lastName\": \"Diop\",\n  \"telephone\": \"+221771234567\",\n  \"adresse\": \"Dakar\",\n  \"active\": true,\n  \"matricule\": \"MAT-2026-001\",\n  \"specialite\": \"Mathématiques\",\n  \"dateEmbauche\": \"2026-05-14\",\n  \"numeroCNPS\": \"+221771234567\",\n  \"numeroSecuriteSociale\": \"+221771234567\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Supprimer",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/enseignants/{{id}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Legacy - Admin Matiere",
+      "item": [
+        {
+          "name": "Lister",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/matieres"
+          }
+        },
+        {
+          "name": "Consulter",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/matieres/{{id}}"
+          }
+        },
+        {
+          "name": "Créer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/matieres",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Diop\",\n  \"code\": \"CODE-001\",\n  \"description\": \"Exemple de contenu\",\n  \"coefficient\": 1,\n  \"categorie\": \"Exemple categorie\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Modifier",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/matieres/{{id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Diop\",\n  \"code\": \"CODE-001\",\n  \"description\": \"Exemple de contenu\",\n  \"coefficient\": 1,\n  \"categorie\": \"Exemple categorie\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Supprimer",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/matieres/{{id}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Legacy - Admin Matiere Classe",
+      "item": [
+        {
+          "name": "Lister",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/matieres-classes"
+          }
+        },
+        {
+          "name": "Consulter",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/matieres-classes/{{id}}"
+          }
+        },
+        {
+          "name": "Créer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/matieres-classes",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"matiereId\": \"{{matiereId}}\",\n  \"classeId\": \"{{classeId}}\",\n  \"enseignantId\": \"{{enseignantId}}\",\n  \"anneeScolaire\": \"2025-2026\",\n  \"volumeHoraire\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Modifier",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/matieres-classes/{{id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"matiereId\": \"{{matiereId}}\",\n  \"classeId\": \"{{classeId}}\",\n  \"enseignantId\": \"{{enseignantId}}\",\n  \"anneeScolaire\": \"2025-2026\",\n  \"volumeHoraire\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Supprimer",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/matieres-classes/{{id}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Legacy - Admin Note",
+      "item": [
+        {
+          "name": "Lister",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/notes"
+          }
+        },
+        {
+          "name": "Consulter",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/notes/{{id}}"
+          }
+        },
+        {
+          "name": "Créer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/notes",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"eleveId\": \"{{eleveId}}\",\n  \"matiereId\": \"{{matiereId}}\",\n  \"typeEvaluation\": \"CONTROLE\",\n  \"note\": 12.5,\n  \"noteSur\": 12.5,\n  \"trimestre\": \"Trimestre 1\",\n  \"anneeScolaire\": \"2025-2026\",\n  \"dateEvaluation\": \"2026-05-14\",\n  \"commentaire\": \"Exemple de contenu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Modifier",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/notes/{{id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"eleveId\": \"{{eleveId}}\",\n  \"matiereId\": \"{{matiereId}}\",\n  \"typeEvaluation\": \"CONTROLE\",\n  \"note\": 12.5,\n  \"noteSur\": 12.5,\n  \"trimestre\": \"Trimestre 1\",\n  \"anneeScolaire\": \"2025-2026\",\n  \"dateEvaluation\": \"2026-05-14\",\n  \"commentaire\": \"Exemple de contenu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Supprimer",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/notes/{{id}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Legacy - Admin Paiement",
+      "item": [
+        {
+          "name": "Lister",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/paiements"
+          }
+        },
+        {
+          "name": "Consulter",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/paiements/{{id}}"
+          }
+        },
+        {
+          "name": "Créer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/paiements",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"eleveId\": \"{{eleveId}}\",\n  \"parentId\": \"{{parentId}}\",\n  \"reference\": \"Exemple reference\",\n  \"montant\": 150000,\n  \"typePaiement\": \"SCOLARITE\",\n  \"modePaiement\": \"ESPECES\",\n  \"statut\": \"EN_ATTENTE\",\n  \"anneeScolaire\": \"2025-2026\",\n  \"trimestre\": \"Trimestre 1\",\n  \"transactionId\": \"{{id}}\",\n  \"description\": \"Exemple de contenu\",\n  \"datePaiement\": \"2026-05-14T08:00:00\",\n  \"validePar\": \"{{id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Modifier",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/paiements/{{id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"eleveId\": \"{{eleveId}}\",\n  \"parentId\": \"{{parentId}}\",\n  \"reference\": \"Exemple reference\",\n  \"montant\": 150000,\n  \"typePaiement\": \"SCOLARITE\",\n  \"modePaiement\": \"ESPECES\",\n  \"statut\": \"EN_ATTENTE\",\n  \"anneeScolaire\": \"2025-2026\",\n  \"trimestre\": \"Trimestre 1\",\n  \"transactionId\": \"{{id}}\",\n  \"description\": \"Exemple de contenu\",\n  \"datePaiement\": \"2026-05-14T08:00:00\",\n  \"validePar\": \"{{id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Supprimer",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/paiements/{{id}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Legacy - Admin Parent",
+      "item": [
+        {
+          "name": "Lister",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/parents"
+          }
+        },
+        {
+          "name": "Consulter",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/parents/{{id}}"
+          }
+        },
+        {
+          "name": "Créer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/parents",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"firstName\": \"Awa\",\n  \"lastName\": \"Diop\",\n  \"telephone\": \"+221771234567\",\n  \"adresse\": \"Dakar\",\n  \"profession\": \"Exemple profession\",\n  \"lieuTravail\": \"Exemple lieuTravail\",\n  \"telephoneTravail\": \"+221771234567\",\n  \"lienParente\": \"{{parentId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Modifier",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/parents/{{id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"firstName\": \"Awa\",\n  \"lastName\": \"Diop\",\n  \"telephone\": \"+221771234567\",\n  \"adresse\": \"Dakar\",\n  \"active\": true,\n  \"profession\": \"Exemple profession\",\n  \"lieuTravail\": \"Exemple lieuTravail\",\n  \"telephoneTravail\": \"+221771234567\",\n  \"lienParente\": \"{{parentId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Supprimer",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/parents/{{id}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Legacy - Admin Reclamation",
+      "item": [
+        {
+          "name": "Lister",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/reclamations"
+          }
+        },
+        {
+          "name": "Consulter",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/reclamations/{{id}}"
+          }
+        },
+        {
+          "name": "Créer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/reclamations",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"eleveId\": \"{{eleveId}}\",\n  \"typeReclamation\": \"Exemple typeReclamation\",\n  \"objet\": \"Exemple de contenu\",\n  \"description\": \"Exemple de contenu\",\n  \"noteId\": \"{{noteId}}\",\n  \"absenceId\": \"{{absenceId}}\",\n  \"statut\": \"EN_ATTENTE\",\n  \"reponse\": \"Exemple reponse\",\n  \"traitePar\": \"{{id}}\",\n  \"dateTraitement\": \"2026-05-14T08:00:00\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Modifier",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/reclamations/{{id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"eleveId\": \"{{eleveId}}\",\n  \"typeReclamation\": \"Exemple typeReclamation\",\n  \"objet\": \"Exemple de contenu\",\n  \"description\": \"Exemple de contenu\",\n  \"noteId\": \"{{noteId}}\",\n  \"absenceId\": \"{{absenceId}}\",\n  \"statut\": \"EN_ATTENTE\",\n  \"reponse\": \"Exemple reponse\",\n  \"traitePar\": \"{{id}}\",\n  \"dateTraitement\": \"2026-05-14T08:00:00\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Supprimer",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/reclamations/{{id}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Legacy - Admin Reports",
+      "item": [
+        {
+          "name": "Rapport Trimestre /rapport-trimestre",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/reports/rapport-trimestre?anneeScolaire={{anneeScolaire}}&trimestre={{trimestre}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Legacy - Admin User",
+      "item": [
+        {
+          "name": "Lister",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/users"
+          }
+        },
+        {
+          "name": "Consulter",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/users/{{id}}"
+          }
+        },
+        {
+          "name": "Créer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/users",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"firstName\": \"Awa\",\n  \"lastName\": \"Diop\",\n  \"telephone\": \"+221771234567\",\n  \"adresse\": \"Dakar\",\n  \"role\": \"ADMIN\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Modifier",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/users/{{id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"firstName\": \"Awa\",\n  \"lastName\": \"Diop\",\n  \"telephone\": \"+221771234567\",\n  \"adresse\": \"Dakar\",\n  \"role\": \"ADMIN\",\n  \"active\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Supprimer",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/admin/users/{{id}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Legacy - Caisse",
+      "item": [
+        {
+          "name": "Lister Paiements /paiements",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/caisse/paiements"
+          }
+        },
+        {
+          "name": "Lister Par Statut /paiements/statut/{statut}",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/caisse/paiements/statut/{{statut}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"exemple\": \"value\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Historique /paiements/historique",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/caisse/paiements/historique?debut={{debut}}&fin={{fin}}"
+          }
+        },
+        {
+          "name": "Consulter /paiements/{id}",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/caisse/paiements/{{id}}"
+          }
+        },
+        {
+          "name": "Valider /paiements/{id}/valider",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/caisse/paiements/{{id}}/valider"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Legacy - Eleve",
+      "item": [
+        {
+          "name": "Mon Profil /profil",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/eleve/profil"
+          }
+        },
+        {
+          "name": "Mes Notes /notes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/eleve/notes"
+          }
+        },
+        {
+          "name": "Mes Bulletins /bulletins",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/eleve/bulletins"
+          }
+        },
+        {
+          "name": "Mon Emploi Du Temps /emploi-du-temps",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/eleve/emploi-du-temps"
+          }
+        },
+        {
+          "name": "Mes Absences /absences",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/eleve/absences"
+          }
+        },
+        {
+          "name": "Soumettre Reclamation /reclamations",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/eleve/reclamations",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"eleveId\": \"{{eleveId}}\",\n  \"typeReclamation\": \"Exemple typeReclamation\",\n  \"objet\": \"Exemple de contenu\",\n  \"description\": \"Exemple de contenu\",\n  \"noteId\": \"{{noteId}}\",\n  \"absenceId\": \"{{absenceId}}\",\n  \"statut\": \"EN_ATTENTE\",\n  \"reponse\": \"Exemple reponse\",\n  \"traitePar\": \"{{id}}\",\n  \"dateTraitement\": \"2026-05-14T08:00:00\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Mes Reclamations /reclamations",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/eleve/reclamations"
+          }
+        },
+        {
+          "name": "Mes Notifications /notifications",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/eleve/notifications"
+          }
+        },
+        {
+          "name": "Marquer Notification Comme Lue /notifications/{id}/lire",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/eleve/notifications/{{id}}/lire"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Legacy - Enseignant",
+      "item": [
+        {
+          "name": "Mon Profil /profil",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/enseignant/profil"
+          }
+        },
+        {
+          "name": "Mes Classes Et Matieres /classes-matieres",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/enseignant/classes-matieres"
+          }
+        },
+        {
+          "name": "Mon Emploi Du Temps /emploi-du-temps",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/enseignant/emploi-du-temps"
+          }
+        },
+        {
+          "name": "Notes Pour Eleve Matiere /notes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/enseignant/notes?eleveId={{eleveId}}&matiereId={{matiereId}}"
+          }
+        },
+        {
+          "name": "Saisir Note /notes",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/enseignant/notes",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"eleveId\": \"{{eleveId}}\",\n  \"matiereId\": \"{{matiereId}}\",\n  \"typeEvaluation\": \"CONTROLE\",\n  \"note\": 12.5,\n  \"noteSur\": 12.5,\n  \"trimestre\": \"Trimestre 1\",\n  \"anneeScolaire\": \"2025-2026\",\n  \"dateEvaluation\": \"2026-05-14\",\n  \"commentaire\": \"Exemple de contenu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Modifier Note /notes/{noteId}",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/enseignant/notes/{{noteId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"eleveId\": \"{{eleveId}}\",\n  \"matiereId\": \"{{matiereId}}\",\n  \"typeEvaluation\": \"CONTROLE\",\n  \"note\": 12.5,\n  \"noteSur\": 12.5,\n  \"trimestre\": \"Trimestre 1\",\n  \"anneeScolaire\": \"2025-2026\",\n  \"dateEvaluation\": \"2026-05-14\",\n  \"commentaire\": \"Exemple de contenu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Consulter Bulletins /bulletins",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/enseignant/bulletins"
+          }
+        },
+        {
+          "name": "Declarer Absence /absences",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/enseignant/absences",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"enseignantId\": \"{{enseignantId}}\",\n  \"dateDebut\": \"2026-05-14\",\n  \"dateFin\": \"2026-05-14\",\n  \"motif\": \"Exemple de contenu\",\n  \"justifiee\": true,\n  \"documentJustificatifUrl\": \"Exemple documentJustificatifUrl\",\n  \"remplacantId\": \"{{id}}\",\n  \"notificationEnvoyee\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Reclamations Mes Matieres /reclamations",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/enseignant/reclamations"
+          }
+        },
+        {
+          "name": "Creer Appel /appels",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/enseignant/appels",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"coursId\": \"{{coursId}}\",\n  \"dateCours\": \"2026-05-14\",\n  \"heureDebut\": \"08:00:00\",\n  \"statut\": \"EN_ATTENTE\",\n  \"soumisPar\": \"{{id}}\",\n  \"lignes\": [\n    {\n      \"eleveId\": \"{{eleveId}}\",\n      \"statut\": \"PRESENT\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Liste Appels /appels",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/enseignant/appels?coursId={{coursId}}"
+          }
+        },
+        {
+          "name": "Soumettre Appel /appels/{appelId}/soumettre",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/enseignant/appels/{{appelId}}/soumettre"
+          }
+        },
+        {
+          "name": "Creer Cahier Texte /cahier-texte",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/enseignant/cahier-texte",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"coursId\": \"{{coursId}}\",\n  \"dateCours\": \"2026-05-14\",\n  \"contenuTraite\": \"Exemple de contenu\",\n  \"observations\": \"Exemple de contenu\",\n  \"etapeProgramme\": \"Exemple etapeProgramme\",\n  \"programmeValide\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Liste Cahier Texte /cahier-texte",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/enseignant/cahier-texte?coursId={{coursId}}"
+          }
+        },
+        {
+          "name": "Modifier Cahier Texte /cahier-texte/{id}",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/enseignant/cahier-texte/{{id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"coursId\": \"{{coursId}}\",\n  \"dateCours\": \"2026-05-14\",\n  \"contenuTraite\": \"Exemple de contenu\",\n  \"observations\": \"Exemple de contenu\",\n  \"etapeProgramme\": \"Exemple etapeProgramme\",\n  \"programmeValide\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Legacy - Parent",
+      "item": [
+        {
+          "name": "Mon Profil /profil",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/parent/profil"
+          }
+        },
+        {
+          "name": "Mes Enfants /enfants",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/parent/enfants"
+          }
+        },
+        {
+          "name": "Profil Enfant /enfants/{eleveId}/profil",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/parent/enfants/{{eleveId}}/profil"
+          }
+        },
+        {
+          "name": "Notes Enfant /enfants/{eleveId}/notes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/parent/enfants/{{eleveId}}/notes"
+          }
+        },
+        {
+          "name": "Bulletins Enfant /enfants/{eleveId}/bulletins",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/parent/enfants/{{eleveId}}/bulletins"
+          }
+        },
+        {
+          "name": "Absences Enfant /enfants/{eleveId}/absences",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/parent/enfants/{{eleveId}}/absences"
+          }
+        },
+        {
+          "name": "Emploi Du Temps Enfant /enfants/{eleveId}/emploi-du-temps",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/parent/enfants/{{eleveId}}/emploi-du-temps"
+          }
+        },
+        {
+          "name": "Historique Paiements /paiements",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/parent/paiements"
+          }
+        },
+        {
+          "name": "Mes Notifications /notifications",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Tenant-Id",
+                "value": "{{tenant_id}}",
+                "disabled": true
+              }
+            ],
+            "url": "{{base_url}}/api/parent/notifications"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Plateforme - Audit Log",
+      "item": [
+        {
+          "name": "Lister",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/platform/audit-logs?page={{page}}&size={{size}}&tenantId={{tenantId}}&utilisateurId={{utilisateurId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Plateforme - Plateforme Stats",
+      "item": [
+        {
+          "name": "Get Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/platform/stats"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Plateforme - Plateforme Utilisateur",
+      "item": [
+        {
+          "name": "Lister",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/platform/utilisateurs"
+          }
+        },
+        {
+          "name": "Consulter",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/platform/utilisateurs/{{id}}"
+          }
+        },
+        {
+          "name": "Créer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/platform/utilisateurs",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Diop\",\n  \"prenom\": \"Awa\",\n  \"email\": \"user@example.com\",\n  \"telephone\": \"+221771234567\",\n  \"rolePlateforme\": \"ADMIN\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Supprimer",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{base_url}}/api/platform/utilisateurs/{{id}}"
+          }
+        },
+        {
+          "name": "Set Actif /{id}/actif",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": "{{base_url}}/api/platform/utilisateurs/{{id}}/actif?actif={{actif}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Plateforme - Tenant",
+      "item": [
+        {
+          "name": "Lister",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/platform/tenants"
+          }
+        },
+        {
+          "name": "Consulter",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/platform/tenants/{{id}}"
+          }
+        },
+        {
+          "name": "Créer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/platform/tenants",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Diop\",\n  \"emailContact\": \"user@example.com\",\n  \"telephone\": \"+221771234567\",\n  \"adresse\": \"Dakar\",\n  \"logoUrl\": \"Exemple logoUrl\",\n  \"plan\": \"Exemple plan\",\n  \"durationMonths\": 1,\n  \"initialAdminEmail\": \"user@example.com\",\n  \"initialAdminTelephone\": \"+221771234567\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Modifier",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/platform/tenants/{{id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Diop\",\n  \"emailContact\": \"user@example.com\",\n  \"telephone\": \"+221771234567\",\n  \"adresse\": \"Dakar\",\n  \"logoUrl\": \"Exemple logoUrl\",\n  \"plan\": \"Exemple plan\",\n  \"durationMonths\": 1,\n  \"actif\": true,\n  \"dateExpiration\": \"2026-05-14\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Suspend /{id}/suspend",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{base_url}}/api/platform/tenants/{{id}}/suspend"
+          }
+        },
+        {
+          "name": "Reactivate /{id}/reactivate",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{base_url}}/api/platform/tenants/{{id}}/reactivate"
+          }
+        },
+        {
+          "name": "Supprimer",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{base_url}}/api/platform/tenants/{{id}}"
+          }
+        },
+        {
+          "name": "Auto Register /auto-register",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{base_url}}/api/platform/tenants/auto-register?nom={{nom}}&slug={{slug}}"
+          }
+        },
+        {
+          "name": "Upload Logo /{id}/logo",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{base_url}}/api/platform/tenants/{{id}}/logo"
+          }
+        }
       ]
     }
   ]

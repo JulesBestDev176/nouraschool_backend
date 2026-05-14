@@ -9,6 +9,8 @@ import com.nouraschool.domain.exception.errors.NotFoundException;
 import com.nouraschool.domain.repositories.LienPaiementParentRepository;
 import com.nouraschool.domain.repositories.ParentRepository;
 import com.nouraschool.domain.services.LienPaiementService;
+import com.nouraschool.domain.services.OtpService;
+import com.nouraschool.domain.services.WhatsAppService;
 import com.nouraschool.runtime.tenant.TenantContext;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -35,6 +37,12 @@ public class LienPaiementServiceImpl implements LienPaiementService {
     @Inject
     TenantContext tenantContext;
 
+    @Inject
+    OtpService otpService;
+
+    @Inject
+    WhatsAppService whatsAppService;
+
     @Override
     @Transactional
     public List<LienPaiementParentDto> generate(List<LienPaiementCreateDto> dtos) {
@@ -60,7 +68,9 @@ public class LienPaiementServiceImpl implements LienPaiementService {
         entity.expiresAt = Instant.now().plus(Duration.ofDays(LINK_EXPIRY_DAYS));
         entity.otpVerified = false;
 
-        return toDto(lienRepository.persist(entity));
+        LienPaiementParentEntity persisted = lienRepository.persist(entity);
+        sendOtpToParent(persisted, parent);
+        return toDto(persisted);
     }
 
     @Override
@@ -81,8 +91,8 @@ public class LienPaiementServiceImpl implements LienPaiementService {
         if (entity.expiresAt.isBefore(Instant.now())) {
             throw new InvalidRequestException("REGLE_METIER_VIOLEE");
         }
-        if (otp == null || otp.length() != 6) {
-            throw new InvalidRequestException("VALIDATION_ECHOUEE");
+        if (otp == null || otp.length() != 6 || !otpService.verify(otpKey(token), otp)) {
+            throw new InvalidRequestException("OTP_INVALIDE");
         }
         entity.otpVerified = true;
         entity.otpExpiresAt = Instant.now().plus(Duration.ofMinutes(OTP_EXPIRY_MINUTES));
@@ -123,5 +133,17 @@ public class LienPaiementServiceImpl implements LienPaiementService {
             throw new InvalidRequestException("Tenant context required");
         }
         return tenantContext.getTenantId();
+    }
+
+    private void sendOtpToParent(LienPaiementParentEntity lien, ParentEntity parent) {
+        if (parent.telephone == null || parent.telephone.isBlank()) {
+            throw new InvalidRequestException("TELEPHONE_PARENT_REQUIS");
+        }
+        String code = otpService.generate(otpKey(lien.token));
+        whatsAppService.sendOtp(parent.telephone, code);
+    }
+
+    private String otpKey(String token) {
+        return "lien-paiement:" + token;
     }
 }

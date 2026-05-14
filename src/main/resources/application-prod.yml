@@ -5,6 +5,7 @@
 # AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, S3_BUCKET (optionnel actuellement)
 # ELASTIC_* uniquement si logging Elastic activé avec ELASTIC_LOGGING_ENABLED=true
 # Resend emails : RESEND_API_KEY, RESEND_FROM, RESEND_REPLY_TO
+# WhatsApp OTP : WHATSAPP_GATEWAY_ENABLED, WHATSAPP_GATEWAY_URL, WHATSAPP_GATEWAY_API_KEY
 
 quarkus:
   devservices:
@@ -36,6 +37,11 @@ app:
     reply-to: ${RESEND_REPLY_TO:}
     resend:
       api-key: ${RESEND_API_KEY:}
+  whatsapp:
+    gateway:
+      enabled: ${WHATSAPP_GATEWAY_ENABLED:false}
+      url: ${WHATSAPP_GATEWAY_URL:http://localhost:3100}
+      api-key: ${WHATSAPP_GATEWAY_API_KEY:}
   security:
     jwt-validation-enabled: true
   logging:

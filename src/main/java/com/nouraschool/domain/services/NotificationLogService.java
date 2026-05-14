@@ -4,13 +4,12 @@ import java.util.UUID;
 
 /**
  * Enregistrement des notifications dans notification_log avant envoi (task.md section 15).
- * Toute notification doit être loggée ici ; les envois (WhatsApp, SMS, email, in-app) mettent à jour le statut.
+ * Toute notification doit être loggée ici ; les envois (WhatsApp, email, in-app) mettent à jour le statut.
  */
 public interface NotificationLogService {
 
     /** Canaux supportés (task.md). */
     String CANAL_WHATSAPP = "WHATSAPP";
-    String CANAL_SMS = "SMS";
     String CANAL_EMAIL = "EMAIL";
     String CANAL_IN_APP = "IN_APP";
 
@@ -23,7 +22,7 @@ public interface NotificationLogService {
      * Enregistre une notification en base (statut EN_ATTENTE) avant envoi.
      *
      * @param tenantId    nullable
-     * @param canal       WHATSAPP | SMS | EMAIL | IN_APP
+     * @param canal       WHATSAPP | EMAIL | IN_APP
      * @param destinataire email ou téléphone
      * @param sujet       nullable
      * @param contenu     corps du message

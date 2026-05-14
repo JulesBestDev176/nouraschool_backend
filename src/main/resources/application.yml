@@ -150,6 +150,11 @@ app:
     reply-to: ${RESEND_REPLY_TO:}
     resend:
       api-key: ${RESEND_API_KEY:}
+  whatsapp:
+    gateway:
+      enabled: ${WHATSAPP_GATEWAY_ENABLED:false}
+      url: ${WHATSAPP_GATEWAY_URL:http://localhost:3100}
+      api-key: ${WHATSAPP_GATEWAY_API_KEY:}
   # Codes d'erreur métier (remplace le CSV) — gestion des erreurs avec codes spécifiques
   error-codes:
     - code: IDENTIFIANTS_INVALIDES
@@ -182,6 +187,9 @@ app:
     - code: OTP_INVALIDE
       http-code: 401
       message: "Code OTP incorrect ou expiré"
+    - code: TELEPHONE_PARENT_REQUIS
+      http-code: 400
+      message: "Le parent doit avoir un numéro WhatsApp valide"
     - code: ERREUR_INTERNE
       http-code: 500
       message: "Une erreur inattendue s'est produite"

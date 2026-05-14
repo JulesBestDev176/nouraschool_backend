@@ -41,6 +41,7 @@ public class ApplicationProperties {
         add("REGLE_METIER_VIOLEE", 422, "Règle métier non respectée");
         add("TENANT_INACTIF", 403, "Établissement suspendu");
         add("OTP_INVALIDE", 401, "Code OTP incorrect ou expiré");
+        add("TELEPHONE_PARENT_REQUIS", 400, "Le parent doit avoir un numéro WhatsApp valide");
         add("ERREUR_INTERNE", 500, "Une erreur inattendue s'est produite");
         add("USER_INACTIVE", 403, "Compte inactif");
         add("PARENT_LOGIN_DISABLED", 403, "Connexion parent désactivée (accès OTP uniquement)");

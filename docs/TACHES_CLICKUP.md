@@ -311,8 +311,7 @@
 ### 📋 List : Intégrations
 
 - [x] 🟢 EmailService (SMTP, templates : compte, reset mdp, bulletin)
-- [x] 🟢 WhatsAppService (templates : absence, convocation, bulletin, rappel paiement)
-- [x] 🟢 SmsService (Twilio, OTP fallback)
+- [x] 🟢 WhatsAppService (OTP via gateway whatsapp-web.js)
 - [x] 🟢 OtpService (Redis, 6 chiffres, TTL 5 min, max 3 tentatives)
 
 ### 📋 List : Tests Notifications
@@ -344,7 +343,7 @@
 ### 📋 List : Préparation prod
 
 - [x] 🟠 `application-prod.yml` (secrets via env, Hibernate validate, logs JSON, Swagger désactivé)
-- [x] 🟠 Secrets (Vault ou CI/CD) : DB, Redis, JWT, S3, WhatsApp, Twilio, SMTP
+- [x] 🟠 Secrets (Vault ou CI/CD) : DB, Redis, JWT, S3, WhatsApp Gateway, SMTP
 - [x] 🟡 Health checks : `/q/health/live`, `/q/health/ready`
 - [x] 🟡 Alertes monitoring (5xx, latence)
 - [x] 🟢 Staging + revue sécurité (OWASP)

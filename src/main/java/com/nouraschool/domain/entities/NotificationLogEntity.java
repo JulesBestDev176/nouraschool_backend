@@ -10,7 +10,7 @@ import java.util.UUID;
 
 /**
  * Log de chaque envoi de notification (task.md section 15 — notification_log).
- * Enregistré avant envoi (WHATSAPP, SMS, EMAIL, IN_APP) pour traçabilité et retentatives.
+ * Enregistré avant envoi (WHATSAPP, EMAIL, IN_APP) pour traçabilité et retentatives.
  */
 @Entity
 @Table(name = "notification_log")
@@ -25,7 +25,7 @@ public class NotificationLogEntity extends PanacheEntityBase {
     @JdbcTypeCode(SqlTypes.VARCHAR)
     public UUID tenantId;
 
-    /** WHATSAPP | SMS | EMAIL | IN_APP */
+    /** WHATSAPP | EMAIL | IN_APP */
     @Column(nullable = false, length = 20)
     public String canal;
 

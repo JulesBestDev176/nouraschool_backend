@@ -2,6 +2,8 @@ package com.nouraschool.domain.services;
 
 public interface WhatsAppService {
 
+    void sendOtp(String telephone, String code);
+
     void sendAbsenceApprouvee(String telephone, String eleveNom, String date);
 
     void sendConvocation(String telephone, String eleveNom, String date, String heure, String motif);

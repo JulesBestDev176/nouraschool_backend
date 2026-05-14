@@ -73,7 +73,7 @@ Document de suivi : contexte, étapes validées et liens vers la spec et les tâ
 
 - [x] EmailService (SMTP, templates compte, reset mdp, bulletin)
 - [x] OtpService (Redis, 6 chiffres, TTL 5 min, max 3 tentatives)
-- [x] WhatsAppService, SmsService (stubs à brancher)
+- [x] WhatsAppService branché sur un gateway Node whatsapp-web.js pour OTP
 
 ### Folder 12 — Tests & Qualité
 
@@ -106,7 +106,7 @@ Voir section 12 « État d'implémentation » dans SPEC_AUTH_ET_ROLES.md.
 ## À faire (voir TACHES_CLICKUP.md)
 
 - Période verrouillée pour saisie de notes (validation métier)
-- Intégration WhatsApp / Twilio (templates réels)
+- Déploiement et supervision du gateway WhatsApp OTP
 - Tests Gatling 100 tenants simultanés (simulation étendue)
 - Staging + scan OWASP ZAP
 

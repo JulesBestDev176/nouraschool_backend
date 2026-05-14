@@ -6,6 +6,7 @@
 - PostgreSQL 16
 - Redis 7+
 - SMTP si les emails doivent réellement partir
+- Gateway WhatsApp si les OTP parent doivent réellement partir
 - S3-compatible storage ou MinIO uniquement si les fonctionnalités de stockage de fichiers sont activées
 
 ## Variables d'environnement (production)
@@ -51,6 +52,26 @@ En staging / Coolify, remplacer par l'URL publique du frontend :
 CORS_ORIGINS=https://votre-frontend-staging.example.com
 ```
 
+### WhatsApp OTP
+
+Les OTP parent passent par un gateway Node basé sur `whatsapp-web.js`.
+
+- `WHATSAPP_GATEWAY_ENABLED` — `true` pour envoyer réellement les OTP WhatsApp
+- `WHATSAPP_GATEWAY_URL` — URL interne du gateway, par exemple `http://whatsapp-gateway:3100`
+- `WHATSAPP_GATEWAY_API_KEY` — clé partagée entre le backend et le gateway
+- `WHATSAPP_CLIENT_ID` — identifiant de session WhatsApp côté gateway, par défaut `nouraschool`
+
+Le gateway expose :
+
+```text
+GET /health
+GET /status
+GET /qr
+POST /send
+```
+
+Au premier démarrage, lire le QR code dans les logs du gateway ou appeler `/qr`, puis le scanner avec le compte WhatsApp qui servira aux notifications OTP.
+
 ### SMTP (optionnel mais nécessaire pour l'envoi réel d'emails)
 - `QUARKUS_MAILER_HOST`
 - `QUARKUS_MAILER_PORT`
@@ -95,11 +116,12 @@ Après analyse du code :
 |---------|--------|----------|
 | PostgreSQL | Obligatoire | Base principale, entités métier, refresh tokens, audit logs, migrations Flyway |
 | Redis | Obligatoire | Rate limiting login, verrouillage après échecs, reset-password, OTP |
+| WhatsApp Gateway | Obligatoire pour OTP parent réel | Envoi des codes OTP via WhatsApp Web, appelé par le backend |
 | Elasticsearch | Optionnel | Les audits sont toujours stockés en PostgreSQL; Elastic est appelé uniquement si `ELASTIC_LOGGING_ENABLED=true` |
 | S3 / MinIO | Optionnel actuellement | Le service `StorageServiceS3Impl` existe, mais aucun use case ne l'appelle encore dans le code actuel |
 | SMTP | Optionnel au démarrage, nécessaire fonctionnellement | `EmailService` est appelé lors de la création d'un élève pour envoyer les identifiants |
 
-Conclusion pour un premier staging `develop` : créer **PostgreSQL + Redis + backend**. Ne pas créer Elasticsearch. Ne configurer S3/MinIO et SMTP que si tu veux tester les fonctionnalités liées.
+Conclusion pour un premier staging `develop` : créer **PostgreSQL + Redis + backend**. Ajouter le **gateway WhatsApp** dès que tu veux tester les OTP parent. Ne pas créer Elasticsearch. Ne configurer S3/MinIO et SMTP que si tu veux tester les fonctionnalités liées.
 
 ### 1. Préparer le serveur Coolify
 
@@ -265,7 +287,49 @@ S3_BUCKET=noura-school-develop-files
 S3_ENDPOINT_OVERRIDE=https://minio.example.com
 ```
 
-### 6. Créer l'application backend
+### 6. Créer le gateway WhatsApp OTP
+
+Le dossier `whatsapp-gateway/` contient un service Node séparé. Il doit être déployé comme application/service distinct dans Coolify, ou via `docker/compose.yml`.
+
+Dans Coolify :
+
+1. Créer une nouvelle application depuis le même dépôt.
+2. Utiliser la branche `develop`.
+3. Mettre le **Base Directory** sur :
+
+```text
+whatsapp-gateway
+```
+
+4. Mettre le Dockerfile sur :
+
+```text
+Dockerfile
+```
+
+5. Exposer le port :
+
+```text
+3100
+```
+
+6. Ajouter les variables :
+
+```env
+PORT=3100
+WHATSAPP_GATEWAY_API_KEY=<secret-fort>
+WHATSAPP_CLIENT_ID=nouraschool-develop
+```
+
+7. Ajouter un volume persistant pour :
+
+```text
+/app/.wwebjs_auth
+```
+
+8. Déployer, puis scanner le QR affiché dans les logs. Sans volume persistant, la session WhatsApp sera perdue au redémarrage.
+
+### 7. Créer l'application backend
 
 Dans Coolify :
 
@@ -334,7 +398,7 @@ java -jar /app/quarkus-run.jar
 
 En mode jar, Quarkus utilise le profil runtime `prod` par défaut. Les migrations Flyway s'exécutent au démarrage via `quarkus.flyway.migrate-at-start=true`.
 
-### 7. Ajouter les variables d'environnement dans Coolify
+### 8. Ajouter les variables d'environnement dans Coolify
 
 Dans l'application backend Coolify, ouvrir **Environment Variables** et ajouter :
 
@@ -358,9 +422,13 @@ JWT_ACCESS_TOKEN_LIFESPAN=900
 
 HIBERNATE_SCHEMA_STRATEGY=validate
 ELASTIC_LOGGING_ENABLED=false
+
+WHATSAPP_GATEWAY_ENABLED=true
+WHATSAPP_GATEWAY_URL=http://<hostname-interne-whatsapp-gateway>:3100
+WHATSAPP_GATEWAY_API_KEY=<meme-secret-que-le-gateway>
 ```
 
-Ces variables sont suffisantes pour démarrer l'API avec PostgreSQL + Redis.
+Ces variables sont suffisantes pour démarrer l'API avec PostgreSQL + Redis + OTP WhatsApp.
 
 Variables S3/MinIO optionnelles :
 
@@ -421,6 +489,7 @@ Recommandations :
 - `JWT_ISSUER` doit correspondre à l'URL publique de l'API ou à l'issuer attendu par les clients.
 - `CORS_ORIGINS` doit contenir l'URL exacte du frontend. En local avec `noura-school-frontend`, utiliser `http://localhost:4200,http://127.0.0.1:4200`. En staging, utiliser l'URL publique du frontend déployé.
 - Redis est nécessaire pour l'authentification sécurisée. Sans Redis, les endpoints de login/reset/OTP risquent d'échouer.
+- `WHATSAPP_GATEWAY_ENABLED=true` nécessite un gateway joignable et authentifié; sinon les OTP parent échoueront.
 - Elasticsearch n'est pas nécessaire si `ELASTIC_LOGGING_ENABLED=false`; les audits restent persistés en PostgreSQL.
 - S3/MinIO n'est pas nécessaire pour le démarrage actuel, car aucun use case métier n'appelle encore `StorageService`.
 - SMTP n'est pas obligatoire au démarrage, mais la création d'un élève tente d'envoyer un email avec les identifiants.
@@ -433,7 +502,7 @@ Comptes seedés au premier démarrage :
 
 Le compte plateforme sert à créer les écoles via `/api/platform/tenants`. Le compte `ADMIN` d'une école ne doit pas accéder aux routes `/api/platform/*`.
 
-### 8. Premier déploiement manuel
+### 9. Premier déploiement manuel
 
 Avant d'activer l'automatisation :
 
@@ -458,7 +527,7 @@ curl https://api-dev.noura-school.com/q/openapi
 
 En production stricte, Swagger UI n'est pas inclus par `application-prod.yml`, mais `/q/openapi` reste configuré.
 
-### 9. Activer le déploiement depuis GitHub Actions
+### 10. Activer le déploiement depuis GitHub Actions
 
 Le workflow GitHub Actions [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) contient deux jobs :
 
@@ -483,7 +552,7 @@ Le job `deploy-develop` :
 
 Conséquence : une pull request vers `develop` lance la CI, mais ne déploie pas. Le déploiement se fait après le merge, quand GitHub crée le push sur `develop`.
 
-### 10. Créer le token API Coolify
+### 11. Créer le token API Coolify
 
 Dans Coolify :
 
@@ -506,7 +575,7 @@ Ce token sera stocké dans GitHub sous le nom :
 COOLIFY_TOKEN
 ```
 
-### 11. Récupérer le deploy webhook Coolify
+### 12. Récupérer le deploy webhook Coolify
 
 Dans Coolify :
 
@@ -520,7 +589,7 @@ Cette URL sera stockée dans GitHub sous le nom :
 COOLIFY_WEBHOOK
 ```
 
-### 12. Ajouter les secrets GitHub
+### 13. Ajouter les secrets GitHub
 
 Dans GitHub :
 
@@ -549,7 +618,7 @@ curl --fail --request GET "${{ secrets.COOLIFY_WEBHOOK }}" \
   --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
 ```
 
-### 13. Protéger la branche `develop`
+### 14. Protéger la branche `develop`
 
 Dans GitHub :
 
@@ -573,7 +642,7 @@ Require branches to be up to date before merging
 
 Avec cette protection, on évite de merger dans `develop` si les tests, la compilation ou le scan échouent.
 
-### 14. Tester le pipeline complet
+### 15. Tester le pipeline complet
 
 Pour valider la chaîne :
 
@@ -595,7 +664,7 @@ build -> deploy-develop
 curl https://api-dev.noura-school.com/q/health/ready
 ```
 
-### 15. Dépannage courant
+### 16. Dépannage courant
 
 #### Le build Coolify échoue pendant Maven
 
@@ -743,6 +812,17 @@ Exemple staging :
 CORS_ORIGINS=https://dev.noura-school.com
 ```
 
+#### Les OTP WhatsApp ne partent pas
+
+À vérifier :
+
+1. `WHATSAPP_GATEWAY_ENABLED=true` côté backend.
+2. `WHATSAPP_GATEWAY_URL` pointe vers le hostname interne du gateway, pas vers `localhost` en production.
+3. `WHATSAPP_GATEWAY_API_KEY` est identique côté backend et gateway.
+4. `GET /health` sur le gateway répond `UP`.
+5. `GET /status` indique `ready=true`.
+6. Le QR a été scanné et le volume `/app/.wwebjs_auth` est persistant.
+
 #### Les migrations Flyway échouent
 
 À vérifier :
@@ -770,13 +850,14 @@ V18__align_appel_audit_columns.sql
 
 Cette migration aligne `cahier_texte`, `appel` et `appel_ligne` avec le modèle Hibernate. Après push / redeploy, Flyway doit passer de la version `17` à `18`.
 
-### 16. Checklist finale
+### 17. Checklist finale
 
 Avant de considérer le déploiement prêt :
 
 - Domaine API pointé vers le serveur Coolify.
 - PostgreSQL 16 créé et démarré.
 - Redis 7 créé et démarré.
+- Gateway WhatsApp créé, QR scanné et volume `.wwebjs_auth` persistant si OTP parent activé.
 - Elasticsearch non créé et `ELASTIC_LOGGING_ENABLED=false`, sauf besoin explicite.
 - Bucket S3 ou MinIO prêt uniquement si les fonctionnalités de stockage sont activées.
 - SMTP configuré uniquement si l'envoi réel d'emails doit fonctionner.
